@@ -270,9 +270,9 @@ export function applyDarkMode(mode: 'light' | 'dark' | 'auto') {
 export function applyPrimaryColor(hex: string) {
   const s = generatePrimaryShades(hex) // @repo/utils
   const root = document.documentElement.style
-  root.setProperty('--el-color-primary', s.DEFAULT)
-  root.setProperty('--el-color-primary-light-3', s.light3)
-  // light5/7/8/9、dark-2 同理；同步写入 --fsd-color-primary*
+  root.setProperty('--el-color-primary', hex) // 基色直接透传，无 DEFAULT
+  root.setProperty('--el-color-primary-light-3', s['light-3'])
+  // light-5/7/8/9、dark-2 同理；同步写入 --fsd-color-primary*
 }
 
 // features/theme-switch/lib/init-theme.ts（main.ts 最顶部调用）
