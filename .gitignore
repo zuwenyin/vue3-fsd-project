@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.stylelintcache
+*.local
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+apps/server/data/*.db
+apps/server/data/*.db-journal
+apps/server/data/*.db-wal
+apps/server/data/*.db-shm

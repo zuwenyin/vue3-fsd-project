@@ -1,0 +1,143 @@
+# Vue3 + Vite + TS · Monorepo 前端开发模版（FSD）
+
+> 本文档是「需求磋商结论 + 技术方案基线」，后续开发以本文档为准。
+> 所有依赖版本均于 **2026-09-22 通过 npm registry 实时查询**得到，非经验值。
+
+## 1. 项目定位
+
+一套可复用的**中后台前端开发模版**，核心能力：
+
+- **动态路由**：路由表由后端下发，前端运行时注册（`addRoute` + `import.meta.glob` 组件映射）
+- **菜单/路由配置页**：后台可视化维护菜单（增删改、拖拽排序、权限配置），保存后**即时热更新**路由与侧边栏
+- **本地后端服务**：`apps/server`（Express 5 + SQLite）提供菜单 CRUD 与路由下发，接口形状即生产形状
+- **主题切换**：明暗模式 + 自定义品牌色（运行时生成色阶，覆盖 Element Plus 变量）
+- **多菜单栏切换**：内置 `sidebar` / `top` / `mix` / `dual` 四种布局，运行时可切换
+- **多标签页**：Tabs + `keep-alive` 缓存（刷新 / 关闭 / 关闭其他 / 固定）
+- **国际化（P7）**：字段与回落已就绪（`titleKey` → `resolveMenuTitle()`），vue-i18n 与 EP 语言包联动在 P7 接入
+- **Mock 与测试**：Vitest 单测 + 组件测试（`apps/server` 用 supertest）；MSW 仅用于测试/离线兜底（开发期数据来自 `apps/server`）
+
+## 2. 已确认的技术选型（决策记录）
+
+| 维度       | 结论                                                                                                                                                                                     |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 包管理器   | pnpm 11.9.0（workspace，原生 `-r --filter` 编排，不引入 Turbo/Nx）                                                                                                                       |
+| 主应用     | Vue 3.5.43 + Vite 8.3.0 + TypeScript **6.0.3**                                                                                                                                           |
+| UI 基础    | Element Plus 2.14.6，`packages/ui` 内**显式按需引入**后再导出                                                                                                                            |
+| 状态管理   | Pinia 4.0.3                                                                                                                                                                              |
+| 路由       | vue-router 5.3.1，后端下发 + 前端动态注册                                                                                                                                                |
+| TypeScript | **6.0.3**（理由见 `docs/02-依赖版本清单.md`）                                                                                                                                            |
+| 后端服务   | `apps/server`：**Express 5.2.1 + SQLite**（`better-sqlite3` 13，失败回退 Node 内置 `node:sqlite`），本地真实 CRUD                                                                        |
+| 子包       | `@repo/utils`、`@repo/ui`（最小集）                                                                                                                                                      |
+| 子包消费   | **打包产物**：`dist` + `d.ts`（utils 用 tsup，ui 用 Vite lib 模式）                                                                                                                      |
+| 主题范围   | 明暗（dark/light/auto）+ 自定义品牌色                                                                                                                                                    |
+| 布局模式   | sidebar / top / mix / dual 全内置                                                                                                                                                        |
+| 附加能力   | Tabs+keep-alive、i18n（P7）、MSW（仅测试/离线兜底）、Vitest 测试体系（含 `apps/server` 的 supertest）                                                                                    |
+| 工程规范   | ESLint 10 + Prettier + editorconfig、Husky + lint-staged + commitlint、Changesets、GitHub Actions CI                                                                                     |
+| Lint 方案  | JS：**ESLint 10**（`typescript-eslint` 8.70.1 + `eslint-plugin-vue` 10.11.0）；样式：**Stylelint 17.15.0**（L2 标准 + 设计令牌强制）。oxlint 1.85 **暂不引入**，触发条件见 `docs/06` §13 |
+
+## 3. 目录总览
+
+```
+vue3-fsd-project/
+├─ apps/
+│  ├─ web/                    # 主应用（FSD 架构）@repo/web
+│  │  ├─ index.html
+│  │  ├─ vite.config.ts
+│  │  ├─ vitest.config.ts
+│  │  ├─ tsconfig.json
+│  │  ├─ mocks/               # MSW（仅测试/离线兜底，见 docs/06 §9）
+│  │  └─ src/
+│  │     ├─ app/              # 应用装配层：入口、router、store、providers、全局样式
+│  │     ├─ pages/            # 页面（路由组件，组合 widgets/features）
+│  │     ├─ widgets/          # 布局壳：AppLayout、菜单、Header、Tabs、Breadcrumb
+│  │     ├─ features/         # 交互特性：auth、theme-switch、layout-switch、lang-switch、tabs
+│  │     ├─ entities/         # 业务实体：user、menu、permission
+│  │     └─ shared/           # 与业务无关：ui、lib、api、config、i18n、types、assets
+│  └─ server/                 # 本地后端服务 @repo/server（Express 5 + SQLite）
+│     ├─ src/{db,dao,services,routes,middleware,shared}
+│     └─ data/app.db          # SQLite 文件（gitignore）
+├─ packages/
+│  ├─ utils/                  # @repo/utils（tsup 构建）
+│  └─ ui/                     # @repo/ui（Vite lib 构建，Element Plus 二次封装）
+├─ docs/                      # 本文档集
+├─ .changeset/
+├─ .github/workflows/ci.yml
+├─ pnpm-workspace.yaml
+├─ package.json               # 根：脚本编排 + 统一 devDeps
+├─ tsconfig.base.json
+├─ eslint.config.js
+├─ stylelint.config.js
+├─ .prettierrc / .editorconfig / .npmrc / .nvmrc
+└─ README.md
+```
+
+## 4. 环境要求
+
+- **Node**：`24.19.0`（Vite 8 要求 `^20.19.0 || >=22.12.0`，本仓库锁定 24.x，见 `.nvmrc`）
+- **pnpm**：`11.9.0`（`package.json` 中 `packageManager` 字段锁定，建议开启 corepack）
+- **Git**：2.45+
+
+## 5. 常用命令
+
+```bash
+# 安装
+pnpm install
+
+# 全量并行开发（utils/ui watch 构建 + web dev server）
+pnpm -r --parallel --filter "@repo/*" run dev
+
+# 仅启动主应用（子包已构建过 dist 时使用）
+pnpm --filter @repo/web dev
+
+# 仅启动后端服务（端口 3001）
+pnpm dev:server
+
+# 重置本地数据库并重新写入种子数据
+pnpm db:reset
+
+# 拓扑顺序全量构建（utils → ui → server/web）
+pnpm -r --filter "@repo/*" run build
+
+# 质量门禁
+pnpm lint            # ESLint（flat config）
+pnpm format          # Prettier
+pnpm type-check      # vue-tsc --noEmit
+pnpm test            # Vitest run
+pnpm test:cov        # Vitest + 覆盖率
+
+# 版本与发布（Changesets）
+pnpm changeset
+pnpm version-packages
+pnpm release
+```
+
+## 6. 文档索引
+
+> 编号说明：`docs/08` / `docs/09` 预留未启用，实施文档从 `10` 开始。
+> 所有已拍定的决策（持久化、命名、层级上限、发布流程、CI 等）统一登记在 [docs/07](./docs/07-实施计划.md) 的「决策总表」，不再散落各文档。
+
+| 文档                                                                                 | 内容                                                          |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| [docs/01-架构与目录规范.md](./docs/01-架构与目录规范.md)                             | 分层架构、FSD 规则、命名与导入约束                            |
+| [docs/02-依赖版本清单.md](./docs/02-依赖版本清单.md)                                 | 版本矩阵、兼容性校验、catalog 与升级策略                      |
+| [docs/03-动态路由与权限.md](./docs/03-动态路由与权限.md)                             | 后端契约、组件映射、注册流程、守卫、菜单生成、按钮级权限      |
+| [docs/04-主题与布局.md](./docs/04-主题与布局.md)                                     | 主题令牌、明暗/品牌色算法、四布局模式与切换机制               |
+| [docs/05-子包开发规范.md](./docs/05-子包开发规范.md)                                 | utils/ui 包结构、构建产物、exports、发布流程                  |
+| [docs/06-工程化规范.md](./docs/06-工程化规范.md)                                     | ESLint/TS/提交门禁/测试/Mock/CI                               |
+| [docs/07-实施计划.md](./docs/07-实施计划.md)                                         | 分阶段落地步骤与验收标准（阶段 → 实施文档索引）+ **决策总表** |
+| [docs/10-实施-P0-P1-工程底座与子包.md](./docs/10-实施-P0-P1-工程底座与子包.md)       | P0/P1 文件清单、配置内容、脚本与验收                          |
+| [docs/11-实施-后端服务-Express-SQLite.md](./docs/11-实施-后端服务-Express-SQLite.md) | 后端服务：DDL、种子数据、接口与错误码、校验与事务、驱动回退   |
+| [docs/12-实施-P2-主应用骨架.md](./docs/12-实施-P2-主应用骨架.md)                     | 主应用骨架：Vite 配置与代理、装配、常量路由                   |
+| [docs/13-实施-P3-动态路由与权限.md](./docs/13-实施-P3-动态路由与权限.md)             | 动态路由注册、热替换、权限过滤与指令                          |
+| [docs/14-实施-P3.5-菜单配置页.md](./docs/14-实施-P3.5-菜单配置页.md)                 | 菜单配置页：左右分栏、拖拽、组件下拉、热更新时序              |
+| [docs/15-实施-P4-P6-布局主题Tabs.md](./docs/15-实施-P4-P6-布局主题Tabs.md)           | 布局四模式、主题系统、Tabs + keep-alive                       |
+
+## 7. 待后续确认（不影响开工，实施到该阶段前需再确认）
+
+1. 是否需要 dev 环境主应用 alias 直连子包源码（DX 优化，与「产物消费」并存的两条路径）
+2. **oxlint 重新评估时机**（当前决策：暂缓，不引入）——当且仅当 `docs/06` §13 列出的条件全部满足时才重新评估，届时需同步决策 TS 是否升到 7.x
+3. Stylelint 间距组（margin/padding/gap）令牌强制若落地后阻塞严重，可降为不检查（配置已按组收口，改一处生效，见 `docs/06` §5.2）
+4. 生产环境的**发布审批流程与审计需求**（本期即时生效，表已预留 `publish_status` / `published_at`；对接真实后端前再确认）
+5. 前端覆盖率阈值（`packages/utils ≥ 90%`，其余 40%）是否上调（P8 复核）
+
+> 已从待确认移出（**已定**，见 `docs/07` 决策总表）：字段命名（`docs/03`/`docs/11` 已同构）、403 拦截（本期不启用）、affix 与最大缓存（LRU 20）、菜单层级（≤ 3）、拖拽排序（本期做）、发布流程（本期即时生效）。

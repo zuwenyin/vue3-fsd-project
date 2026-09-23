@@ -1,0 +1,76 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# ---- pnpm 11 设置（不再读取根 package.json 的 pnpm 字段）----
+# 构建脚本白名单：pnpm 11 已移除 onlyBuiltDependencies，改为 allowBuilds
+allowBuilds:
+  esbuild: true
+  '@parcel/watcher': true
+  better-sqlite3: true
+# 以下三项在 pnpm 11 中不再从 .npmrc 读取，必须写在此处
+strictPeerDependencies: false
+autoInstallPeers: true
+resolutionMode: highest
+
+catalog:
+  # ---- 运行时 ----
+  vue: 3.5.43
+  vue-router: 5.3.1
+  pinia: 4.0.3
+  element-plus: 2.14.6
+  '@element-plus/icons-vue': 2.3.2
+  '@vueuse/core': 15.0.0
+  vue-i18n: 11.4.12
+  axios: 1.20.0
+  vue-draggable-plus: 0.6.1
+  sortablejs: 1.15.7
+  # ---- 构建 / 类型 ----
+  vite: 8.3.0
+  '@vitejs/plugin-vue': 6.0.9
+  typescript: 6.0.3
+  vue-tsc: 3.3.11
+  tsup: 8.5.1
+  vite-plugin-dts: 5.1.1
+  '@types/node': 24.13.6
+  '@vue/tsconfig': 0.9.1
+  sass: 1.104.1
+  # ---- 质量 ----
+  vitest: 5.0.1
+  '@vitest/coverage-v8': 5.0.1
+  '@vue/test-utils': 2.5.1
+  happy-dom: 20.14.5
+  msw: 2.15.0
+  supertest: 7.3.0
+  '@types/supertest': 7.2.1
+  eslint: 10.11.0
+  '@eslint/js': 10.0.1
+  typescript-eslint: 8.70.1
+  eslint-plugin-vue: 10.11.0
+  eslint-config-prettier: 10.1.8
+  prettier: 3.9.8
+  stylelint: 17.15.0
+  stylelint-config-standard-scss: 17.0.0
+  stylelint-config-recommended-vue: 2.0.0
+  stylelint-scss: 7.3.0
+  stylelint-declaration-strict-value: 1.12.1
+  postcss-scss: 4.0.9
+  globals: 17.12.0
+  husky: 9.1.7
+  lint-staged: 17.5.1
+  '@commitlint/cli': 21.2.3
+  '@commitlint/config-conventional': 21.2.3
+  '@changesets/cli': 3.0.3
+  # ---- 后端（docs/02 §5.5）----
+  express: 5.2.1
+  better-sqlite3: 13.0.3
+  cors: 2.8.6
+  jsonwebtoken: 9.0.3
+  zod: 4.6.5
+  morgan: 1.12.1
+  tsx: 4.23.15
+  '@types/express': 5.0.6
+  '@types/cors': 2.8.19
+  '@types/better-sqlite3': 9.6.0
+  '@types/jsonwebtoken': 9.0.10
+  '@types/morgan': 1.9.10

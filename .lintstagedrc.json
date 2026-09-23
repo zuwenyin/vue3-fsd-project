@@ -1,0 +1,5 @@
+{
+  "*.{ts,tsx,vue,js,json,md,css,scss}": ["prettier --write"],
+  "*.{ts,tsx,vue,js}": ["eslint --fix --max-warnings 0"],
+  "*.{css,scss,vue}": ["stylelint --fix --max-warnings 0"]
+}

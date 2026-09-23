@@ -1,0 +1,51 @@
+{
+  "name": "vue3-fsd-project",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter \"@repo/*\" run dev",
+    "dev:web": "pnpm --filter @repo/web run dev",
+    "dev:server": "pnpm --filter @repo/server run dev",
+    "db:reset": "pnpm --filter @repo/server run db:reset",
+    "build": "pnpm -r --filter \"@repo/*\" run build",
+    "lint": "pnpm lint:js && pnpm lint:style",
+    "lint:js": "eslint . --max-warnings 0",
+    "lint:style": "stylelint \"**/*.{css,scss,vue}\" --cache --max-warnings 0",
+    "lint:fix": "eslint . --fix && stylelint \"**/*.{css,scss,vue}\" --fix",
+    "format": "prettier --write .",
+    "type-check": "pnpm -r run type-check",
+    "test": "pnpm -r run test",
+    "test:cov": "pnpm -r run test:cov",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm -r publish --access public",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@changesets/cli": "catalog:",
+    "@commitlint/cli": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "@vue/tsconfig": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-vue": "catalog:",
+    "globals": "catalog:",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
+    "postcss-scss": "catalog:",
+    "prettier": "catalog:",
+    "stylelint": "catalog:",
+    "stylelint-config-recommended-vue": "catalog:",
+    "stylelint-config-standard-scss": "catalog:",
+    "stylelint-declaration-strict-value": "catalog:",
+    "stylelint-scss": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
+}

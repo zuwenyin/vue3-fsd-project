@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  web: # 前端 + 子包
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.19.0
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm type-check
+      - run: pnpm test:cov
+      - run: pnpm build
+
+  server: # apps/server（决策 D6，不设覆盖率门槛）
+    runs-on: ubuntu-latest
+    env:
+      DB_PATH: ':memory:'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.19.0
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @repo/server run type-check
+      - run: pnpm --filter @repo/server run test
