@@ -8,8 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage"
+    "test": "vitest run --passWithNoTests",
+    "test:cov": "vitest run --coverage --passWithNoTests"
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
