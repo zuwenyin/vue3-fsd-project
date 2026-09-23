@@ -636,24 +636,26 @@ it('第 4 级菜单插入被拒绝', async () => {
 
 ## 10. 验收清单
 
-- [ ] `pnpm --filter @repo/server dev` 启动成功，控制台打印 `listening on 3001`
-- [ ] `pnpm db:reset` 后 `data/app.db` 重建，种子 5 条菜单 + 2 个用户
-- [ ] `POST /api/auth/login` 用 `admin/admin123` 返回 token；错误密码返回 `401`
-- [ ] `GET /api/user/routes` 返回 3 级树，`meta` 字段与 `docs/03` §1 完全一致（可用前端 `resolvePageComponent` 直接跑通）
-- [ ] `POST /api/menus` 新增后，`GET /api/menus/tree` 立即包含新节点
-- [ ] 重复 `name` → `409`；同父重复 `path` → `409`；`parentId` 设为自身子孙 → `409`
-- [ ] `DELETE /api/menus/:id` 在有子节点时返回 `409`；带 `cascade=true` 时子节点一并删除
-- [ ] `POST /api/menus/:id/move` 连续拖拽 10 次后，同层 `order_no` 仍单调有序（触发重排逻辑正确）
-- [ ] 接口全部返回 `{ code, data, message }`；未知路由返回 `404`
-- [ ] `pnpm --filter @repo/server type-check` 通过
-- [ ] `pnpm --filter @repo/server test` 全绿（§8.5 用例表逐条落实，含「第 4 级插入 → 422」「component 不存在 → 仍创建成功」）
-- [ ] 测试使用内存库，**不污染** `data/app.db`（跑完测试后 `data/` 无新增文件）
-- [ ] 层级超过 `MAX_DEPTH = 3` 的创建与移动均被拒绝并返回 `422`
-- [ ] 本期 `publish_status` 写入即 `published`，`/user/routes` 不过滤发布态
-- [ ] 关闭服务后重启，数据仍在（持久化生效）
-- [ ] **删掉整个 `data/` 目录后首次启动**：自动创建目录与 `app.db`，种子写入成功，无 `SQLITE_CANTOPEN`
-- [ ] 从仓库根目录执行 `pnpm --filter @repo/server start`，库仍落在 `apps/server/data/app.db`（不产生第二份库文件）
-- [ ] `git status` 中不出现 `*.db` / `*.db-wal` / `*.db-shm` / `*.db-journal`（`docs/10` §1.11 已忽略）
+> 全部实测通过（2026-09-23，Node `v24.19.0`，驱动 `better-sqlite3` 13.0.3）。
+
+- [x] `pnpm --filter @repo/server dev` 启动成功，控制台打印 `listening on 3001`（`start` 同样验证）
+- [x] `pnpm db:reset` 后 `data/app.db` 重建，种子 5 条菜单 + 2 个用户
+- [x] `POST /api/auth/login` 用 `admin/admin123` 返回 token；错误密码返回 `401`
+- [x] `GET /api/user/routes` 返回树，`meta` 字段与 `docs/03` §1 一致；3 级树由「第 3 层可创建」用例覆盖
+- [x] `POST /api/menus` 新增后，`GET /api/menus/tree` 立即包含新节点
+- [x] 重复 `name` → `409`；同父重复 `path` → `409`；`parentId` 设为自身子孙 → `409`
+- [x] `DELETE /api/menus/:id` 在有子节点时返回 `409`；带 `cascade=true` 时子节点一并删除
+- [x] `POST /api/menus/:id/move` 连续拖拽 10 次后，同层 `order_no` 仍单调有序（触发重排逻辑正确）
+- [x] 接口全部返回 `{ code, data, message }`；未知路由返回 `404`（无 token 的 `/api/*` 先返回 `401`）
+- [x] `pnpm --filter @repo/server type-check` 通过
+- [x] `pnpm --filter @repo/server test` 全绿 —— **49 个用例**，含「第 4 级插入 → 422」「component 不存在 → 仍创建成功」
+- [x] 测试使用内存库（`DB_PATH=:memory:`），**不污染** `data/app.db`（跑完测试后 `data/` 无新增文件）
+- [x] 层级超过 `MAX_DEPTH = 3` 的创建与移动均被拒绝并返回 `422`
+- [x] 本期 `publish_status` 写入即 `published`（显式 `draft` → `422`），`/user/routes` 不过滤发布态
+- [x] 关闭服务后重启，数据仍在（持久化生效，标记记录 id=6 重启后仍可读）
+- [x] **删掉整个 `data/` 目录后首次启动**：自动创建目录与 `app.db`，种子写入成功，无 `SQLITE_CANTOPEN`
+- [x] 从仓库根目录执行 `pnpm --filter @repo/server start`，库仍落在 `apps/server/data/app.db`（全仓仅此一份 `*.db`）
+- [x] `git status` 中不出现 `*.db` / `*.db-wal` / `*.db-shm` / `*.db-journal`（`docs/10` §1.11 已忽略）
 
 ## 11. 风险与回退
 
