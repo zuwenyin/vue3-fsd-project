@@ -32,7 +32,11 @@ export default tseslint.config(
   },
   {
     files: ['**/*.vue'],
-    rules: { 'vue/component-api-style': ['error', ['script-setup']] },
+    rules: {
+      'vue/component-api-style': ['error', ['script-setup']],
+      // 可选 props 由 TS 类型与 withDefaults 表达，强制补 undefined 默认值无意义
+      'vue/require-default-prop': 'off',
+    },
   },
   {
     // 测试文件：Vitest 全局变量
