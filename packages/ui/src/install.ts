@@ -4,6 +4,7 @@ import { FsdColorPicker } from './components/FsdColorPicker'
 import { FsdDialog } from './components/FsdDialog'
 import { FsdForm, FsdFormItem } from './components/FsdForm'
 import { FsdIcon } from './components/FsdIcon'
+import { FsdInput } from './components/FsdInput'
 import { FsdMenu, FsdMenuItem, FsdSubMenu } from './components/FsdMenu'
 import { FsdSelect } from './components/FsdSelect'
 import { FsdSwitch } from './components/FsdSwitch'
@@ -18,6 +19,7 @@ export const components = {
   FsdForm,
   FsdFormItem,
   FsdIcon,
+  FsdInput,
   FsdMenu,
   FsdMenuItem,
   FsdSubMenu,
