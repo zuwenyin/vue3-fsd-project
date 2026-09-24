@@ -1,4 +1,6 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import './styles/index.scss'
+import { bootstrap } from './index'
+import { initTheme } from './providers/theme'
 
-createApp(App).mount('#app')
+initTheme() // 占位：P5 实现
+void bootstrap().then((app) => app.mount('#app'))
