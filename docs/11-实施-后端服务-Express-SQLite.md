@@ -265,15 +265,16 @@ export function createDatabase(file: string): SqliteDatabase {
 
 ### 3.3 种子数据（`src/db/seed.ts`，幂等：按 `name` 判存在）
 
-| id  | parent | name         | path         | component            | title    | icon         | order                     |
-| --- | ------ | ------------ | ------------ | -------------------- | -------- | ------------ | ------------------------- |
-| 1   | null   | `Dashboard`  | `/dashboard` | `dashboard/index`    | 仪表盘   | `Odometer`   | 10                        |
-| 2   | null   | `System`     | `/system`    | **空**（纯分组目录） | 系统管理 | `Setting`    | 100                       |
-| 3   | 2      | `SystemUser` | `user`       | `system/user/index`  | 用户管理 | `User`       | 10                        |
-| 4   | 2      | `SystemMenu` | `menu`       | `system/menu/index`  | 菜单管理 | `Menu`       | 20                        |
-| 5   | null   | `Profile`    | `/profile`   | `profile/index`      | 个人中心 | `UserFilled` | 200（`hideInMenu: true`） |
+| id  | parent | name         | path         | component            | title    | icon         | order                     | permissions        |
+| --- | ------ | ------------ | ------------ | -------------------- | -------- | ------------ | ------------------------- | ------------------ |
+| 1   | null   | `Dashboard`  | `/dashboard` | `dashboard/index`    | 仪表盘   | `Odometer`   | 10                        | —                  |
+| 2   | null   | `System`     | `/system`    | **空**（纯分组目录） | 系统管理 | `Setting`    | 100                       | —                  |
+| 3   | 2      | `SystemUser` | `user`       | `system/user/index`  | 用户管理 | `User`       | 10                        | `system:user:view` |
+| 4   | 2      | `SystemMenu` | `menu`       | `system/menu/index`  | 菜单管理 | `Menu`       | 20                        | `system:menu:view` |
+| 5   | null   | `Profile`    | `/profile`   | `profile/index`      | 个人中心 | `UserFilled` | 200（`hideInMenu: true`） | —                  |
 
 - 用户：`admin / admin123`（`roles: ['admin']`，`permissions: ['*']`）、`editor / editor123`（`roles: ['editor']`，`permissions: ['system:menu:view']`）。
+- **权限列说明（P3 实施补充）**：最初种子菜单不带 `roles` / `permissions`，导致 `docs/13` §6「editor 无权限菜单被过滤」无法实测。现为 `SystemUser` / `SystemMenu` 补上 `view` 权限：editor 只能看到「菜单管理」，`/system/user` 直连落 404。
 - 种子构成 **3 级路由树**（`System` → `SystemUser`），用于验证四布局与面包屑。
 - `System` 是**纯分组目录**：`component` 必须为空（`docs/03` §1 语义）。若填 `Layout` 会与常量路由的 `Layout` 冲突导致 `AppLayout` 嵌套渲染。
 - `Profile` 对应页面 `pages/profile/index.vue` 必须在 P2 建立占位（见 `docs/12` §2），否则会被 `resolvePageComponent` 判为未命中而整节点丢弃。
