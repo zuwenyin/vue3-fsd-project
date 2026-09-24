@@ -10,6 +10,9 @@ interface SeedMenu {
   icon: string
   orderNo: number
   hideInMenu?: boolean
+  /** 路由级权限（docs/03 §6）：空数组表示不限制 */
+  roles?: string[]
+  permissions?: string[]
 }
 
 const MENUS: SeedMenu[] = [
@@ -39,6 +42,7 @@ const MENUS: SeedMenu[] = [
     title: '用户管理',
     icon: 'User',
     orderNo: 10,
+    permissions: ['system:user:view'],
   },
   {
     name: 'SystemMenu',
@@ -48,6 +52,7 @@ const MENUS: SeedMenu[] = [
     title: '菜单管理',
     icon: 'Menu',
     orderNo: 20,
+    permissions: ['system:menu:view'],
   },
   {
     name: 'Profile',
@@ -127,8 +132,8 @@ export function seedIfEmpty(db: SqliteDatabase): void {
             0,
             0,
             null,
-            '[]',
-            '[]',
+            JSON.stringify(menu.roles ?? []),
+            JSON.stringify(menu.permissions ?? []),
             1,
             'published',
             now(),
