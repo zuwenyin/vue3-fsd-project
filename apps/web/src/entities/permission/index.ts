@@ -1,2 +1,3 @@
-// 占位：P3 实现权限过滤（filterRoutes / 按钮级权限）
-export {}
+export type { PermissionCode, PermissionOwner, PermissionValue } from './model/types'
+export { hasPermission } from './lib/has-permission'
+export { filterRoutes } from './lib/filter-routes'

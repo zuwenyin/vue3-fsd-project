@@ -1,2 +1,2 @@
-// 占位：P3 实现登录 / 登出编排（docs/13 §3.6）
-export {}
+export { useAuthStore, registerLogoutHook } from './model/auth.store'
+export { login, fetchUserInfo } from './api/auth.api'

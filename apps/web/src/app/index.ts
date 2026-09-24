@@ -5,8 +5,10 @@ import { setupPinia } from './providers/pinia'
 import { setupElement } from './providers/element'
 import { setupI18n } from './providers/i18n'
 import { setupMock } from './providers/mock'
+import { appDirectives } from './directives'
 import { registerDirectives } from '@/shared/lib/directives'
 import { setupRouterGuard } from './router/guard'
+import './router/types'
 
 /**
  * 装配顺序不可变（docs/12 §3.6）：
@@ -21,7 +23,7 @@ export async function bootstrap(): Promise<VueApp> {
   await setupMock()
   app.use(router)
   setupRouterGuard()
-  registerDirectives(app)
+  registerDirectives(app, appDirectives)
 
   return app
 }

@@ -1,2 +1,3 @@
-// 占位：P3 实现 user store（token / roles / permissions 唯一归属，决策 D8）
-export {}
+export { useUserStore } from './model/user.store'
+export { login, fetchUserInfo } from './api/user.api'
+export type { UserInfo } from '@/shared/api'

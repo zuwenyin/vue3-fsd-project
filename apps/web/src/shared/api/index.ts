@@ -1,13 +1,10 @@
 import { request, unwrap } from './request'
-import type { ApiResponse, LoginResult, UserInfo } from './types'
 
 export { request, unwrap }
 export type { ApiResponse, LoginResult, UserInfo } from './types'
 
-export function login(username: string, password: string): Promise<LoginResult> {
-  return unwrap(request.post<ApiResponse<LoginResult>>('/auth/login', { username, password }))
-}
-
-export function fetchUserInfo(): Promise<UserInfo> {
-  return unwrap(request.get<ApiResponse<UserInfo>>('/user/info'))
-}
+/**
+ * 此处只保留 axios 实例与统一包装（供各 slice 复用）；业务请求按 FSD 归属到各 slice：
+ * - 登录 / 用户信息 → `entities/user/api/user.api.ts`
+ * - 路由树 → `entities/menu/api/menu.api.ts`
+ */

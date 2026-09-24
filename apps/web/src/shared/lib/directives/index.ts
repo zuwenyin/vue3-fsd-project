@@ -1,6 +1,11 @@
-import type { App } from 'vue'
+import type { App, Directive } from 'vue'
 
-// P2 空实现；P3 在此注册 v-permission
-export function registerDirectives(_app: App): void {
-  /* P3: app.directive('permission', permission) */
+/**
+ * 注册 app 层传入的指令表。
+ * 指令实现留在 `app/directives/`（需要 `@/entities/*`），shared 保持零依赖（docs/13 §3.7 修订说明）。
+ */
+export function registerDirectives(app: App, directives: Record<string, Directive>): void {
+  for (const [name, directive] of Object.entries(directives)) {
+    app.directive(name, directive)
+  }
 }

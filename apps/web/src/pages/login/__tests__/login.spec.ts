@@ -1,15 +1,25 @@
 import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia } from 'pinia'
 import { storage } from '@repo/utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TOKEN_KEY } from '@/shared/config/storage-keys'
 import LoginPage from '../index.vue'
 
-vi.mock('@/shared/api', () => ({
+vi.mock('@/entities/user/api/user.api', () => ({
   login: vi.fn(() => Promise.resolve({ token: 'mock-token' })),
+  fetchUserInfo: vi.fn(() =>
+    Promise.resolve({
+      id: 1,
+      username: 'admin',
+      nickname: '超级管理员',
+      roles: ['admin'],
+      permissions: ['*'],
+    }),
+  ),
 }))
 
-const { login } = await import('@/shared/api')
+const { login } = await import('@/entities/user/api/user.api')
 const loginMock = vi.mocked(login)
 
 const router = createRouter({
@@ -21,7 +31,7 @@ const router = createRouter({
 })
 
 async function mountPage() {
-  const wrapper = mount(LoginPage, { global: { plugins: [router] } })
+  const wrapper = mount(LoginPage, { global: { plugins: [createPinia(), router] } })
   await flushPromises()
   return wrapper
 }
