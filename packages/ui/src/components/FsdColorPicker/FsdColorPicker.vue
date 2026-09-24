@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElColorPicker } from 'element-plus'
+import 'element-plus/es/components/color-picker/style/css'
 import type { FsdSize } from '../../types'
 
 defineOptions({ name: 'FsdColorPicker' })

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElInput } from 'element-plus'
+import 'element-plus/es/components/input/style/css'
 import type { FsdSize } from '../../types'
 
 defineOptions({ name: 'FsdInput' })

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, watch, type Component } from 'vue'
 import * as IconSet from '@element-plus/icons-vue'
+// 图标尺寸靠 `el-icon` 规则（base.css：.el-icon{width:1em;height:1em} + .el-icon svg{width:1em}）
+// 不引样式时 SVG 会按默认尺寸撑满容器（实测踩坑）
+import 'element-plus/es/components/icon/style/css'
 
 defineOptions({ name: 'FsdIcon' })
 
@@ -39,6 +42,6 @@ const placeholderStyle = computed(() => ({
 </script>
 
 <template>
-  <component :is="resolved" v-if="resolved" :style="iconStyle" />
-  <span v-else :style="placeholderStyle" />
+  <component :is="resolved" v-if="resolved" class="el-icon" :style="iconStyle" />
+  <span v-else class="el-icon" :style="placeholderStyle" />
 </template>

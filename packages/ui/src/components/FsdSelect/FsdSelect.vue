@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ElOption, ElSelect } from 'element-plus'
+// select 的按需样式已包含 option / option-group / popper / scrollbar
+import 'element-plus/es/components/select/style/css'
 import type { FsdOption } from '../../types'
 
 export type FsdSelectValue = string | number | Array<string | number> | null

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElDialog } from 'element-plus'
+import 'element-plus/es/components/dialog/style/css'
 import { FsdButton } from '../FsdButton'
 
 defineOptions({ name: 'FsdDialog' })

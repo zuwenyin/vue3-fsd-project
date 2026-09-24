@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElForm, type FormInstance, type FormRules } from 'element-plus'
+import 'element-plus/es/components/form/style/css'
+import 'element-plus/es/components/form-item/style/css'
 
 defineOptions({ name: 'FsdForm' })
 

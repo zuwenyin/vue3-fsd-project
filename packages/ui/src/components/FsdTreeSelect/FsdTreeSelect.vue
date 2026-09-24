@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ElTreeSelect } from 'element-plus'
+import 'element-plus/es/components/tree-select/style/css'
 
 defineOptions({ name: 'FsdTreeSelect' })
 

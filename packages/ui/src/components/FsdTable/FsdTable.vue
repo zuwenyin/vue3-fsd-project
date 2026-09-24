@@ -7,6 +7,10 @@ import {
   ElTableColumn,
   type TableInstance,
 } from 'element-plus'
+// table 样式已含 scrollbar / tooltip / checkbox；分页与 v-loading 需各自引入
+import 'element-plus/es/components/table/style/css'
+import 'element-plus/es/components/pagination/style/css'
+import 'element-plus/es/components/loading/style/css'
 import type { FsdTableProps } from '../../types'
 
 defineOptions({ name: 'FsdTable' })

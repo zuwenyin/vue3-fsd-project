@@ -1,9 +1,11 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import { stubElementPlusStyles } from '../../vitest.element-plus-style-stub'
 
 export default defineConfig({
-  plugins: [vue()],
+  // @repo/ui 组件内置了 EP 按需样式导入（docs/05），单测里替换为空模块
+  plugins: [vue(), stubElementPlusStyles()],
   test: {
     environment: 'happy-dom',
     globals: true,

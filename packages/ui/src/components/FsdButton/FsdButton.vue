@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElButton } from 'element-plus'
+import 'element-plus/es/components/button/style/css'
 import { FsdIcon } from '../FsdIcon'
 import type { FsdButtonType, FsdSize } from '../../types'
 

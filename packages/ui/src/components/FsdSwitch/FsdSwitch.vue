@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElSwitch } from 'element-plus'
+import 'element-plus/es/components/switch/style/css'
 
 defineOptions({ name: 'FsdSwitch' })
 

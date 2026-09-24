@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElMenuItem } from 'element-plus'
+import 'element-plus/es/components/menu-item/style/css'
 import { FsdIcon } from '../FsdIcon'
 
 defineOptions({ name: 'FsdMenuItem' })
