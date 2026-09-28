@@ -11,8 +11,8 @@ export default tseslint.config(
       '**/coverage/**',
       '**/.changeset/**',
       '**/node_modules/**',
+      // 生成的 MSW service worker（public 下均不 lint）
       '**/public/**',
-      'apps/web/mocks/**',
     ],
   },
   js.configs.recommended,

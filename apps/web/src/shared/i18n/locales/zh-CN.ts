@@ -1,0 +1,60 @@
+/** 中文文案（shell 层 + 菜单标题；键集合必须与 en-US 完全一致，单测校验） */
+export default {
+  common: {
+    confirm: '确定',
+    cancel: '取消',
+    reset: '重置',
+    refresh: '刷新',
+    close: '关闭',
+    closeOthers: '关闭其他',
+    closeLeft: '关闭左侧',
+    closeRight: '关闭右侧',
+    closeAll: '全部关闭',
+    save: '保存',
+    remove: '删除',
+    apply: '应用变更',
+    addRoot: '新增根菜单',
+    expandAll: '展开全部',
+    collapseAll: '折叠全部',
+  },
+  header: {
+    sidebar: '折叠 / 展开侧边栏',
+    theme: '主题',
+    language: '语言',
+    placeholderSoon: '将在后续阶段接入',
+  },
+  theme: {
+    title: '主题设置',
+    presets: '预设色板',
+    custom: '自定义',
+    customEntry: '自定义品牌色…',
+    resetDefault: '恢复默认',
+    light: '浅色',
+    dark: '深色',
+    auto: '跟随系统',
+  },
+  layout: {
+    label: '布局',
+    sidebar: '侧边栏',
+    top: '顶部栏',
+    mix: '混合',
+    dual: '双栏',
+  },
+  lang: {
+    zhCN: '简体中文',
+    enUS: 'English',
+  },
+  user: {
+    profile: '个人中心',
+    logout: '退出登录',
+  },
+  /** 菜单标题（后端菜单 titleKey 指向这里，决策 D2） */
+  menu: {
+    dashboard: '仪表盘',
+    system: '系统管理',
+    systemUser: '用户管理',
+    systemMenu: '菜单管理',
+    systemUserGroup: '用户分组',
+    profile: '个人中心',
+  },
+}

@@ -17,6 +17,8 @@ interface SeedMenu {
   keepAlive?: boolean
   /** 固定页签：不可关闭（P6 Tabs 验收需要） */
   affix?: boolean
+  /** i18n 键（决策 D2）：前端 resolveMenuTitle 优先取它，缺失回落 title */
+  titleKey?: string
 }
 
 const MENUS: SeedMenu[] = [
@@ -27,6 +29,7 @@ const MENUS: SeedMenu[] = [
     path: '/dashboard',
     component: 'dashboard/index',
     title: '仪表盘',
+    titleKey: 'menu.dashboard',
     icon: 'Odometer',
     orderNo: 10,
     affix: true,
@@ -37,6 +40,7 @@ const MENUS: SeedMenu[] = [
     path: '/system',
     component: null,
     title: '系统管理',
+    titleKey: 'menu.system',
     icon: 'Setting',
     orderNo: 100,
   },
@@ -46,6 +50,7 @@ const MENUS: SeedMenu[] = [
     path: 'user',
     component: 'system/user/index',
     title: '用户管理',
+    titleKey: 'menu.systemUser',
     icon: 'User',
     orderNo: 10,
     permissions: ['system:user:view'],
@@ -56,6 +61,7 @@ const MENUS: SeedMenu[] = [
     path: 'menu',
     component: 'system/menu/index',
     title: '菜单管理',
+    titleKey: 'menu.systemMenu',
     icon: 'Menu',
     orderNo: 20,
     permissions: ['system:menu:view'],
@@ -67,6 +73,7 @@ const MENUS: SeedMenu[] = [
     path: 'group',
     component: 'system/user/group/index',
     title: '用户分组',
+    titleKey: 'menu.systemUserGroup',
     icon: 'Collection',
     orderNo: 10,
     permissions: ['system:user:view'],
@@ -77,6 +84,7 @@ const MENUS: SeedMenu[] = [
     path: '/profile',
     component: 'profile/index',
     title: '个人中心',
+    titleKey: 'menu.profile',
     icon: 'UserFilled',
     orderNo: 200,
     hideInMenu: true,
@@ -139,7 +147,7 @@ export function seedIfEmpty(db: SqliteDatabase): void {
             null,
             menu.component,
             menu.title,
-            null,
+            menu.titleKey ?? null,
             menu.icon,
             menu.orderNo,
             menu.keepAlive === false ? 0 : 1,

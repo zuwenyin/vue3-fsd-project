@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWindowSize } from '@vueuse/core'
 import { useDraggable } from 'vue-draggable-plus'
 import type { SortableEvent } from 'sortablejs'
@@ -41,6 +42,7 @@ const emit = defineEmits<{
 defineOptions({ name: 'MenuTreeTable' })
 
 const tableRef = ref<MenuTableExpose | null>(null)
+const { t } = useI18n()
 /** 交给 useDraggable 的 tbody 句柄（库只在初始化时解析元素，故用 ref 承载 + 显式 start） */
 const tbodyRef = shallowRef<HTMLElement | null>(null)
 const expanded = ref(true)
@@ -209,9 +211,11 @@ function toggleExpand(): void {
   <section class="menu-tree-table">
     <header class="menu-tree-table__toolbar">
       <FsdButton v-permission="'system:menu:edit'" type="primary" @click="emit('add-child', null)">
-        新增根菜单
+        {{ t('common.addRoot') }}
       </FsdButton>
-      <FsdButton @click="toggleExpand">{{ expanded ? '折叠全部' : '展开全部' }}</FsdButton>
+      <FsdButton @click="toggleExpand">
+        {{ expanded ? t('common.collapseAll') : t('common.expandAll') }}
+      </FsdButton>
     </header>
 
     <FsdTable

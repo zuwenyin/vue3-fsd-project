@@ -1,0 +1,60 @@
+/** English messages（keys must mirror zh-CN exactly; asserted by unit test） */
+export default {
+  common: {
+    confirm: 'Confirm',
+    cancel: 'Cancel',
+    reset: 'Reset',
+    refresh: 'Refresh',
+    close: 'Close',
+    closeOthers: 'Close Others',
+    closeLeft: 'Close Left',
+    closeRight: 'Close Right',
+    closeAll: 'Close All',
+    save: 'Save',
+    remove: 'Delete',
+    apply: 'Apply Changes',
+    addRoot: 'New Root Menu',
+    expandAll: 'Expand All',
+    collapseAll: 'Collapse All',
+  },
+  header: {
+    sidebar: 'Collapse / Expand sidebar',
+    theme: 'Theme',
+    language: 'Language',
+    placeholderSoon: 'Coming in a later stage',
+  },
+  theme: {
+    title: 'Theme Settings',
+    presets: 'Preset colors',
+    custom: 'Custom',
+    customEntry: 'Custom brand color…',
+    resetDefault: 'Reset to default',
+    light: 'Light',
+    dark: 'Dark',
+    auto: 'Follow system',
+  },
+  layout: {
+    label: 'Layout',
+    sidebar: 'Sidebar',
+    top: 'Top',
+    mix: 'Mixed',
+    dual: 'Dual column',
+  },
+  lang: {
+    zhCN: '简体中文',
+    enUS: 'English',
+  },
+  user: {
+    profile: 'Profile',
+    logout: 'Sign out',
+  },
+  /** Menu titles (backend `titleKey` points here, decision D2) */
+  menu: {
+    dashboard: 'Dashboard',
+    system: 'System',
+    systemUser: 'Users',
+    systemMenu: 'Menus',
+    systemUserGroup: 'User Groups',
+    profile: 'Profile',
+  },
+}

@@ -10,7 +10,8 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    include: ['src/**/*.spec.ts'],
+    // mocks/ 下放 MSW handlers 的契约测试（docs/06 §9）
+    include: ['src/**/*.spec.ts', 'mocks/**/*.spec.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

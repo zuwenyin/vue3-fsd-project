@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { FsdIcon } from '@repo/ui'
+import { resolveMenuTitle } from '@/entities/menu'
 import {
   HOME_ROUTE_NAME,
   TabContextMenu,
@@ -15,8 +17,14 @@ defineOptions({ name: 'AppTabs' })
 const route = useRoute()
 const router = useRouter()
 const tabs = useTabsStore()
+const { t } = useI18n()
 
 const currentName = computed(() => (typeof route.name === 'string' ? route.name : ''))
+
+/** 页签标题：渲染时解析（titleKey 优先），切语言即时生效 */
+function titleOf(view: TabView): string {
+  return resolveMenuTitle(view, t)
+}
 
 onMounted(() => {
   // 恢复必须晚于动态路由注册：本组件由 AppLayout 渲染，此时守卫已完成 applyRoutes（docs/15 §3.3）
@@ -66,16 +74,16 @@ const menuActions = computed<TabContextAction[]>(() => {
   const target = menuTarget.value
   if (!target) return []
   return [
-    { key: 'refresh', label: '刷新' },
-    { key: 'close', label: '关闭', disabled: target.affix },
-    { key: 'closeOthers', label: '关闭其他', disabled: tabs.visitedViews.length <= 1 },
-    { key: 'closeLeft', label: '关闭左侧', disabled: targetIndex.value <= 0 },
+    { key: 'refresh', label: t('common.refresh') },
+    { key: 'close', label: t('common.close'), disabled: target.affix },
+    { key: 'closeOthers', label: t('common.closeOthers'), disabled: tabs.visitedViews.length <= 1 },
+    { key: 'closeLeft', label: t('common.closeLeft'), disabled: targetIndex.value <= 0 },
     {
       key: 'closeRight',
-      label: '关闭右侧',
+      label: t('common.closeRight'),
       disabled: targetIndex.value >= tabs.visitedViews.length - 1,
     },
-    { key: 'closeAll', label: '全部关闭', disabled: tabs.visitedViews.length === 0 },
+    { key: 'closeAll', label: t('common.closeAll'), disabled: tabs.visitedViews.length === 0 },
   ]
 })
 
@@ -129,12 +137,12 @@ async function onMenuSelect(key: TabContextAction['key']): Promise<void> {
       @contextmenu.prevent="openMenu($event, view)"
     >
       <FsdIcon v-if="view.icon" class="app-tabs__icon" :name="view.icon" :size="12" />
-      <span class="app-tabs__title">{{ view.title }}</span>
+      <span class="app-tabs__title">{{ titleOf(view) }}</span>
       <button
         v-if="!view.affix"
         type="button"
         class="app-tabs__close"
-        :aria-label="`关闭 ${view.title}`"
+        :aria-label="`${t('common.close')} ${titleOf(view)}`"
         @click.prevent.stop="closeView(view)"
       >
         ×

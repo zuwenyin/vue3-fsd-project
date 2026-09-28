@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { FsdButton, FsdDropdown, FsdIcon, type FsdDropdownItem } from '@repo/ui'
 import { useUserStore } from '@/entities/user'
 import { useAuthStore } from '@/features/auth'
+import { LangSwitch } from '@/features/lang-switch'
 import { LayoutSwitch, useLayoutStore } from '@/features/layout-switch'
 import { ColorPickerPanel, ThemeSwitch } from '@/features/theme-switch'
 import { LAYOUT_SHELL_KEY } from '../model/layout-shell'
@@ -31,10 +32,12 @@ const layout = useLayoutStore()
 const shell = inject(LAYOUT_SHELL_KEY, { toggleSidebar: () => {}, isMobile: ref(false) })
 const collapseIcon = computed(() => (layout.collapsed ? 'Expand' : 'Fold'))
 
-const userItems: FsdDropdownItem[] = [
-  { label: '个人中心', value: 'profile', icon: 'User' },
-  { label: '退出登录', value: 'logout', icon: 'SwitchButton', divided: true },
-]
+const { t } = useI18n()
+
+const userItems = computed<FsdDropdownItem[]>(() => [
+  { label: t('user.profile'), value: 'profile', icon: 'User' },
+  { label: t('user.logout'), value: 'logout', icon: 'SwitchButton', divided: true },
+])
 
 async function onUserSelect(value: string): Promise<void> {
   if (value === 'logout') {
@@ -47,10 +50,6 @@ async function onUserSelect(value: string): Promise<void> {
 }
 
 const colorPanelVisible = ref(false)
-
-function onLangPlaceholder(): void {
-  ElMessage.info('多语言在 P7 接入')
-}
 </script>
 
 <template>
@@ -59,7 +58,7 @@ function onLangPlaceholder(): void {
       class="app-header__button"
       text
       :icon="collapseIcon"
-      title="折叠 / 展开侧边栏"
+      :title="t('header.sidebar')"
       @click="shell.toggleSidebar()"
     />
     <AppLogo v-if="showLogo" class="app-header__logo" />
@@ -71,9 +70,7 @@ function onLangPlaceholder(): void {
 
     <LayoutSwitch class="app-header__item" />
     <ThemeSwitch class="app-header__item" @open-custom="colorPanelVisible = true" />
-    <FsdButton class="app-header__button" text title="多语言（P7 接入）" @click="onLangPlaceholder">
-      中/EN
-    </FsdButton>
+    <LangSwitch class="app-header__item" />
     <FsdDropdown class="app-header__item" :items="userItems" @select="onUserSelect">
       <FsdIcon name="User" :size="14" />
       <span class="app-header__user">{{ user.nickname }}</span>

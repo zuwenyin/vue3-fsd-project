@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { resolveMenuTitle } from '@/entities/menu'
 
 defineOptions({ name: 'AppBreadcrumb' })
 
 const route = useRoute()
+const { t } = useI18n()
 
 /**
  * 面包屑取 `route.matched` 的 meta（后端下发的 title / titleKey），
@@ -17,7 +19,7 @@ const crumbs = computed(() =>
     .filter((record) => Boolean(record.meta.title || record.meta.titleKey))
     .map((record) => ({
       key: typeof record.name === 'string' ? record.name : record.path,
-      title: resolveMenuTitle(record.meta),
+      title: resolveMenuTitle(record.meta, t),
     })),
 )
 </script>

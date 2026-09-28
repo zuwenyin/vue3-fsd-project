@@ -11,6 +11,7 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.vue",
+    "mocks/**/*.ts",
     "vite.config.ts",
     "vitest.config.ts",
     "vitest.setup.ts"

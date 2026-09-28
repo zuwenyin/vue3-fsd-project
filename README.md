@@ -13,7 +13,7 @@
 - **主题切换**：明暗模式 + 自定义品牌色（运行时生成色阶，覆盖 Element Plus 变量）
 - **多菜单栏切换**：内置 `sidebar` / `top` / `mix` / `dual` 四种布局，运行时可切换
 - **多标签页**：Tabs + `keep-alive` 缓存（刷新 / 关闭 / 关闭其他 / 固定）
-- **国际化（P7）**：字段与回落已就绪（`titleKey` → `resolveMenuTitle()`），vue-i18n 与 EP 语言包联动在 P7 接入
+- **国际化**：vue-i18n（`zh-CN` / `en-US`）+ EP 语言包联动；菜单标题走 `titleKey`（缺失回落 `title`），语言偏好持久化到 `fsd:lang`。覆盖范围为「壳层（Header/侧边栏/页签/面包屑/主题与布局开关）+ 菜单标题 + EP 内置文案」；业务表单文案的翻译并入 P8 收尾
 - **Mock 与测试**：Vitest 单测 + 组件测试（`apps/server` 用 supertest）；MSW 仅用于测试/离线兜底（开发期数据来自 `apps/server`）
 
 ## 2. 已确认的技术选型（决策记录）
@@ -109,7 +109,17 @@ pnpm test:cov        # Vitest + 覆盖率
 pnpm changeset
 pnpm version-packages
 pnpm release
+
+# 生成 MSW 的 service worker（仅在需要用离线兜底时执行一次）
+pnpm --filter @repo/web exec msw init public --save
 ```
+
+### 本地联调说明（docs/06 §9）
+
+- **默认数据来源**：`apps/server`（Express + SQLite），启动 `pnpm dev:server` 后经 Vite 代理（`/api` → `localhost:3001`）取真实数据。
+- **离线兜底（可选）**：服务端不便启动时，`apps/web/.env.local` 设 `VITE_USE_MOCK=true` 后 `pnpm --filter @repo/web dev`，由 `apps/web/mocks` 的 MSW handlers 提供同契约数据（3 级路由树）。首次使用需执行上面的 `msw init` 生成 `public/mockServiceWorker.js`。
+- **测试中使用**：`apps/web/mocks/server.ts` 已在 `vitest.setup.ts` 挂载（`beforeAll/afterEach/afterAll`），组件与路由测试无需真实服务；handlers 的契约由 `mocks/__tests__/handlers.spec.ts` 锁定。
+- **偏好持久化键**（均走 `@repo/utils` 的 `storage`，键常量集中在 `apps/web/src/shared/config/storage-keys.ts`）：`fsd:token` / `fsd:theme` / `fsd:layout` / `fsd:tabs` / `fsd:lang`。
 
 ## 6. 文档索引
 

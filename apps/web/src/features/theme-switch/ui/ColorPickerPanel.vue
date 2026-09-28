@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FsdButton, FsdColorPicker, FsdDialog } from '@repo/ui'
 import { PRIMARY_PRESETS } from '../model/constants'
 import { useThemeStore } from '../model/theme.store'
@@ -10,6 +11,7 @@ const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 
 const theme = useThemeStore()
+const { t } = useI18n()
 
 const predefine = computed(() => PRIMARY_PRESETS.map((item) => item.value))
 </script>
@@ -17,13 +19,13 @@ const predefine = computed(() => PRIMARY_PRESETS.map((item) => item.value))
 <template>
   <FsdDialog
     :model-value="props.visible"
-    title="主题设置"
+    :title="t('theme.title')"
     width="440px"
     :show-footer="false"
     @update:model-value="emit('update:visible', $event)"
   >
     <div class="color-panel">
-      <p class="color-panel__label">预设色板</p>
+      <p class="color-panel__label">{{ t('theme.presets') }}</p>
       <div class="color-panel__swatches">
         <button
           v-for="preset in PRIMARY_PRESETS"
@@ -37,7 +39,7 @@ const predefine = computed(() => PRIMARY_PRESETS.map((item) => item.value))
         />
       </div>
 
-      <p class="color-panel__label">自定义</p>
+      <p class="color-panel__label">{{ t('theme.custom') }}</p>
       <div class="color-panel__custom">
         <FsdColorPicker
           :model-value="theme.primary"
@@ -45,7 +47,7 @@ const predefine = computed(() => PRIMARY_PRESETS.map((item) => item.value))
           @update:model-value="theme.setPrimary"
         />
         <span class="color-panel__value">{{ theme.primary }}</span>
-        <FsdButton @click="theme.resetTheme()">恢复默认</FsdButton>
+        <FsdButton @click="theme.resetTheme()">{{ t('theme.resetDefault') }}</FsdButton>
       </div>
     </div>
   </FsdDialog>

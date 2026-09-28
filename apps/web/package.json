@@ -20,6 +20,7 @@
     "pinia": "catalog:",
     "vue": "catalog:",
     "vue-draggable-plus": "catalog:",
+    "vue-i18n": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {
@@ -28,11 +29,17 @@
     "@vitest/coverage-v8": "catalog:",
     "@vue/test-utils": "catalog:",
     "happy-dom": "catalog:",
+    "msw": "catalog:",
     "sass": "catalog:",
     "sortablejs": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
