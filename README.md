@@ -103,7 +103,8 @@ pnpm lint            # ESLint（flat config）
 pnpm format          # Prettier
 pnpm type-check      # vue-tsc --noEmit
 pnpm test            # Vitest run
-pnpm test:cov        # Vitest + 覆盖率
+pnpm test:cov        # Vitest + 覆盖率（阈值：utils ≥ 90%，web/ui ≥ 40%，server 不设门槛）
+pnpm --filter @repo/web preview   # 静态产物冒烟（需先 pnpm build）
 
 # 版本与发布（Changesets）
 pnpm changeset

@@ -16,6 +16,8 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.{ts,vue}'],
+      // 阈值落库（docs/06 §8）：其余包 ≥ 40%（P8 实测 lines ~46%；组件测试已补 P8 一轮）
+      thresholds: { lines: 40, statements: 40 },
     },
   },
   resolve: {

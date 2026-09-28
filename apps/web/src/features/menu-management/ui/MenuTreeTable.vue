@@ -64,16 +64,17 @@ const columns = computed<FsdTableColumn[]>(() => {
   // ★ 用固定 width 而非 minWidth：左栏被拖窄时 el-table 会「先压缩列、后出滚动条」，
   //   标题列会被压到不可见（实测截图）；固定宽度保证出现横向滚动而非挤压
   list.push(
-    { key: 'title', label: '菜单标题', width: 180, slot: true },
-    { key: 'path', label: '路由地址', width: 140 },
+    { key: 'title', label: t('menuPage.colTitle'), width: 180, slot: true },
+    { key: 'path', label: t('menuPage.colPath'), width: 140 },
   )
-  if (!isNarrow.value) list.push({ key: 'component', label: '组件路径', width: 170 })
+  if (!isNarrow.value)
+    list.push({ key: 'component', label: t('menuPage.colComponent'), width: 170 })
   list.push(
-    { key: 'orderNo', label: '排序', width: 70 },
-    { key: 'status', label: '状态', width: 76, slot: true },
+    { key: 'orderNo', label: t('menuPage.colOrder'), width: 70 },
+    { key: 'status', label: t('menuPage.colStatus'), width: 76, slot: true },
     {
       key: 'actions',
-      label: '操作',
+      label: t('menuPage.colActions'),
       width: isNarrow.value ? 210 : 180,
       fixed: 'right',
       slot: true,
@@ -169,7 +170,7 @@ const draggable = useDraggable(tbodyRef, {
     if (dragIndex < 0) return
     const payload = toMovePayload(list, dragIndex, heightOf(draggedId))
     if (!payload) {
-      ElMessage.warning('目标层级非法（最多 3 级）')
+      ElMessage.warning(t('menuPage.invalidDropLevel'))
       return
     }
     emit('move', payload)
@@ -228,12 +229,12 @@ function toggleExpand(): void {
       default-expand-all
       highlight-current-row
       :tree-props="{ children: 'children' }"
-      :empty-text="'暂无菜单'"
+      :empty-text="t('menuPage.emptyTable')"
       @current-change="onCurrentChange"
       @row-click="onRowClick"
     >
       <template #drag>
-        <span class="menu-tree-table__drag-handle" title="拖拽排序">⠿</span>
+        <span class="menu-tree-table__drag-handle" :title="t('menuPage.dragTip')">⠿</span>
       </template>
 
       <template #title="{ row }">
@@ -245,13 +246,15 @@ function toggleExpand(): void {
         >
           <FsdIcon class="menu-tree-table__icon" :name="row.icon" :size="14" />
           <span class="menu-tree-table__title">{{ row.title }}</span>
-          <FsdTag v-if="row.external" size="small" type="warning">外链</FsdTag>
+          <FsdTag v-if="row.external" size="small" type="warning">
+            {{ t('menuPage.typeExternal') }}
+          </FsdTag>
         </span>
       </template>
 
       <template #status="{ row }">
         <FsdTag :type="row.status === 1 ? 'success' : 'info'" size="small">
-          {{ row.status === 1 ? '启用' : '停用' }}
+          {{ row.status === 1 ? t('menuPage.enabled') : t('menuPage.disabled') }}
         </FsdTag>
       </template>
 
@@ -263,7 +266,7 @@ function toggleExpand(): void {
             type="primary"
             @click="emit('move-row', { id: row.id, direction: 'up' })"
           >
-            上移
+            {{ t('menuPage.moveUp') }}
           </FsdButton>
           <FsdButton
             v-permission="'system:menu:edit'"
@@ -271,7 +274,7 @@ function toggleExpand(): void {
             type="primary"
             @click="emit('move-row', { id: row.id, direction: 'down' })"
           >
-            下移
+            {{ t('menuPage.moveDown') }}
           </FsdButton>
         </template>
         <FsdButton
@@ -279,20 +282,20 @@ function toggleExpand(): void {
           link
           type="primary"
           :disabled="!canAddChild(depthMap.get(row.id) ?? 0)"
-          title="最多 3 级"
+          :title="t('menuPage.maxDepthTip')"
           @click="emit('add-child', row.id)"
         >
-          新增子级
+          {{ t('menuPage.addChild') }}
         </FsdButton>
         <FsdButton
           v-permission="'system:menu:edit'"
           link
           type="danger"
           :disabled="row.children.length > 0"
-          title="请先删除子菜单"
+          :title="t('menuPage.deleteFirstChild')"
           @click="emit('remove', row.id)"
         >
-          删除
+          {{ t('menuPage.remove') }}
         </FsdButton>
       </template>
     </FsdTable>

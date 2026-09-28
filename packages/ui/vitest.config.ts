@@ -13,6 +13,8 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.{ts,vue}'],
+      // 阈值落库（docs/06 §8）：其余包 ≥ 40%（当前实测 ~86%，留提升空间）
+      thresholds: { lines: 40, statements: 40 },
     },
   },
   resolve: {

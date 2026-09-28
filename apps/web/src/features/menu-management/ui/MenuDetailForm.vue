@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import {
   FsdButton,
@@ -35,10 +36,16 @@ defineOptions({ name: 'MenuDetailForm' })
 
 const formRef = ref<InstanceType<typeof FsdForm> | null>(null)
 const local = ref<MenuFormModel | null>(null)
+const { t } = useI18n()
 
-const rules = createMenuFormRules(() => local.value ?? createDefaultForm())
+/** rules 走 computed：切语言后重建规则，新触发的校验用新语言（message 是快照） */
+const rules = computed(() => createMenuFormRules(() => local.value ?? createDefaultForm()))
 /** 上级菜单下拉数据（排除自身子孙由编排层完成，这里只做类型适配） */
 const parentTreeData = computed(() => toTreeSelectData(props.parentOptions))
+/** 布局下拉：label 走 i18n，value 仍是 LayoutMode */
+const layoutOptions = computed(() =>
+  LAYOUT_OPTIONS.map((item) => ({ ...item, label: t(`layout.${item.value}`) })),
+)
 
 watch(
   () => props.model,
@@ -56,7 +63,7 @@ async function onSave(): Promise<void> {
   const normalized: MenuFormModel = { ...local.value, orderNo: Number(local.value.orderNo) }
   // 白名单软提示：手填不存在的组件路径不阻断保存（docs/14 §4.4）
   if (normalized.component && !props.componentOptions.includes(normalized.component)) {
-    ElMessage.warning('未匹配到页面组件，访问时将降级为 404')
+    ElMessage.warning(t('menuPage.componentWarning'))
   }
   emit('save', normalized)
 }
@@ -64,7 +71,7 @@ async function onSave(): Promise<void> {
 
 <template>
   <section class="menu-detail-form" :class="{ 'menu-detail-form--empty': !local }">
-    <p v-if="!local" class="menu-detail-form__placeholder">在左侧选择一个菜单节点进行编辑</p>
+    <p v-if="!local" class="menu-detail-form__placeholder">{{ t('menuPage.selectTip') }}</p>
 
     <FsdForm
       v-else
@@ -75,107 +82,111 @@ async function onSave(): Promise<void> {
       label-width="88px"
       :disabled="disabled"
     >
-      <h4 class="menu-detail-form__group-title">基础信息</h4>
-      <FsdFormItem label="上级菜单" prop="parentId">
+      <h4 class="menu-detail-form__group-title">{{ t('menuPage.groupBasic') }}</h4>
+      <FsdFormItem :label="t('menuPage.parent')" prop="parentId">
         <FsdTreeSelect
           v-model="local.parentId"
           :data="parentTreeData"
           check-strictly
           filterable
           clearable
-          placeholder="顶级菜单"
+          :placeholder="t('menuPage.parentTop')"
         />
       </FsdFormItem>
-      <FsdFormItem label="路由名" prop="name">
-        <FsdInput v-model="local.name" placeholder="大写字母开头，如 SystemUser" />
+      <FsdFormItem :label="t('menuPage.name')" prop="name">
+        <FsdInput v-model="local.name" :placeholder="t('menuPage.phName')" />
       </FsdFormItem>
-      <FsdFormItem label="标题" prop="title">
-        <FsdInput v-model="local.title" :maxlength="20" placeholder="菜单显示标题" />
+      <FsdFormItem :label="t('menuPage.titleLabel')" prop="title">
+        <FsdInput v-model="local.title" :maxlength="20" :placeholder="t('menuPage.phTitle')" />
       </FsdFormItem>
-      <FsdFormItem label="图标" prop="icon">
+      <FsdFormItem :label="t('menuPage.icon')" prop="icon">
         <MenuIconPicker v-model="local.icon" />
       </FsdFormItem>
-      <FsdFormItem label="排序" prop="orderNo">
-        <FsdInput v-model="local.orderNo" type="number" placeholder="0–99999" />
+      <FsdFormItem :label="t('menuPage.orderNo')" prop="orderNo">
+        <FsdInput v-model="local.orderNo" type="number" :placeholder="t('menuPage.phOrder')" />
       </FsdFormItem>
-      <FsdFormItem label="状态" prop="status">
+      <FsdFormItem :label="t('menuPage.status')" prop="status">
         <FsdSwitch
           :model-value="local.status === 1"
-          active-text="启用"
-          inactive-text="停用"
+          :active-text="t('menuPage.enabled')"
+          :inactive-text="t('menuPage.disabled')"
           @update:model-value="local.status = $event ? 1 : 0"
         />
       </FsdFormItem>
 
-      <h4 class="menu-detail-form__group-title">路由</h4>
-      <FsdFormItem label="路由地址" prop="path">
+      <h4 class="menu-detail-form__group-title">{{ t('menuPage.groupRoute') }}</h4>
+      <FsdFormItem :label="t('menuPage.path')" prop="path">
         <FsdInput
           v-model="local.path"
-          :placeholder="local.external ? 'https://example.com' : '/system/user'"
+          :placeholder="local.external ? t('menuPage.phExternalPath') : t('menuPage.phPath')"
         />
       </FsdFormItem>
-      <FsdFormItem v-if="!local.external" label="组件路径" prop="component">
+      <FsdFormItem v-if="!local.external" :label="t('menuPage.component')" prop="component">
         <FsdSelect
           v-model="local.component"
           :options="componentOptions"
           filterable
           allow-create
-          placeholder="选择或手填 src/pages 下的路径"
+          :placeholder="t('menuPage.phComponent')"
         />
       </FsdFormItem>
-      <FsdFormItem v-if="local.parentId === null && !local.external" label="重定向" prop="redirect">
-        <FsdInput v-model="local.redirect" placeholder="如 /system/user（仅顶级目录）" />
+      <FsdFormItem
+        v-if="local.parentId === null && !local.external"
+        :label="t('menuPage.redirect')"
+        prop="redirect"
+      >
+        <FsdInput v-model="local.redirect" :placeholder="t('menuPage.phRedirect')" />
       </FsdFormItem>
-      <FsdFormItem label="外链" prop="external">
+      <FsdFormItem :label="t('menuPage.external')" prop="external">
         <FsdSwitch v-model="local.external" />
       </FsdFormItem>
 
-      <h4 class="menu-detail-form__group-title">显示</h4>
+      <h4 class="menu-detail-form__group-title">{{ t('menuPage.groupDisplay') }}</h4>
       <div class="menu-detail-form__switches">
-        <FsdFormItem label="隐藏菜单" prop="hideInMenu">
+        <FsdFormItem :label="t('menuPage.hideInMenu')" prop="hideInMenu">
           <FsdSwitch v-model="local.hideInMenu" />
         </FsdFormItem>
-        <FsdFormItem label="隐藏子级" prop="hideChildrenInMenu">
+        <FsdFormItem :label="t('menuPage.hideChildren')" prop="hideChildrenInMenu">
           <FsdSwitch v-model="local.hideChildrenInMenu" />
         </FsdFormItem>
-        <FsdFormItem label="页面缓存" prop="keepAlive">
+        <FsdFormItem :label="t('menuPage.keepAlive')" prop="keepAlive">
           <FsdSwitch v-model="local.keepAlive" />
         </FsdFormItem>
-        <FsdFormItem label="固定页签" prop="affix">
+        <FsdFormItem :label="t('menuPage.affix')" prop="affix">
           <FsdSwitch v-model="local.affix" />
         </FsdFormItem>
       </div>
-      <FsdFormItem label="高亮路径" prop="activePath">
-        <FsdInput v-model="local.activePath" placeholder="详情页高亮所属菜单（可选）" />
+      <FsdFormItem :label="t('menuPage.activePath')" prop="activePath">
+        <FsdInput v-model="local.activePath" :placeholder="t('menuPage.phActivePath')" />
       </FsdFormItem>
-      <FsdFormItem label="布局" prop="layout">
+      <FsdFormItem :label="t('menuPage.layout')" prop="layout">
         <FsdSelect
           v-model="local.layout"
-          :options="LAYOUT_OPTIONS"
+          :options="layoutOptions"
           clearable
-          placeholder="跟随全局布局"
+          :placeholder="t('layout.label')"
         />
       </FsdFormItem>
 
-      <h4 class="menu-detail-form__group-title">权限</h4>
-      <FsdFormItem label="角色" prop="roles">
+      <h4 class="menu-detail-form__group-title">{{ t('menuPage.groupPermission') }}</h4>
+      <FsdFormItem :label="t('menuPage.roles')" prop="roles">
         <FsdSelect
           v-model="local.roles"
           multiple
           filterable
           allow-create
           default-first-option
-          placeholder="留空 = 不限制；如 admin"
+          :placeholder="t('menuPage.phRoles')"
         />
       </FsdFormItem>
-      <FsdFormItem label="权限点" prop="permissions">
+      <FsdFormItem :label="t('menuPage.permissions')" prop="permissions">
         <FsdSelect
           v-model="local.permissions"
           multiple
           filterable
           allow-create
           default-first-option
-          placeholder="留空 = 不限制；如 system:user:view"
+          :placeholder="t('menuPage.phPermissions')"
         />
       </FsdFormItem>
 
@@ -187,11 +198,13 @@ async function onSave(): Promise<void> {
           :disabled="props.modelId == null"
           @click="props.modelId != null && emit('remove', props.modelId)"
         >
-          删除
+          {{ t('menuPage.remove') }}
         </FsdButton>
         <span class="menu-detail-form__spacer" />
-        <FsdButton @click="emit('cancel')">取消</FsdButton>
-        <FsdButton v-permission="'system:menu:edit'" type="primary" @click="onSave">保存</FsdButton>
+        <FsdButton @click="emit('cancel')">{{ t('menuPage.cancel') }}</FsdButton>
+        <FsdButton v-permission="'system:menu:edit'" type="primary" @click="onSave">
+          {{ t('menuPage.save') }}
+        </FsdButton>
       </footer>
     </FsdForm>
   </section>

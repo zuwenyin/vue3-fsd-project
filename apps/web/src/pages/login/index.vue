@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { FsdButton, FsdForm, FsdFormItem, FsdInput } from '@repo/ui'
@@ -10,16 +11,17 @@ defineOptions({ name: 'LoginPage' })
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const { t } = useI18n()
 const form = ref({ username: 'admin', password: 'admin123' })
 
 async function onSubmit(): Promise<void> {
   try {
     await auth.login(form.value.username, form.value.password)
-    ElMessage.success('登录成功')
+    ElMessage.success(t('login.success'))
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
     await router.replace(redirect)
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '登录失败')
+    ElMessage.error(error instanceof Error ? error.message : t('login.failed'))
   }
 }
 </script>
@@ -27,15 +29,20 @@ async function onSubmit(): Promise<void> {
 <template>
   <div class="login">
     <FsdForm class="login__form" :model="form">
-      <h1 class="login__title">登录</h1>
-      <FsdFormItem label="用户名">
-        <FsdInput v-model="form.username" placeholder="请输入用户名" />
+      <h1 class="login__title">{{ t('login.submit') }}</h1>
+      <FsdFormItem :label="t('login.username')">
+        <FsdInput v-model="form.username" :placeholder="t('login.usernameRequired')" />
       </FsdFormItem>
-      <FsdFormItem label="密码">
-        <FsdInput v-model="form.password" type="password" show-password placeholder="请输入密码" />
+      <FsdFormItem :label="t('login.password')">
+        <FsdInput
+          v-model="form.password"
+          type="password"
+          show-password
+          :placeholder="t('login.passwordRequired')"
+        />
       </FsdFormItem>
       <FsdButton type="primary" class="login__submit" :loading="auth.loading" @click="onSubmit">
-        登录
+        {{ t('login.submit') }}
       </FsdButton>
     </FsdForm>
   </div>

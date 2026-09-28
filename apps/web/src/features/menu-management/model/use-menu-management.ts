@@ -7,6 +7,7 @@ import {
   type MenuTreeNode,
   type MoveMenuPayload,
 } from '@/entities/menu'
+import { t } from '@/shared/i18n'
 import { MENU_HOT_APPLY_KEY } from '@/shared/lib/menu-apply'
 import { pageComponentKeys } from '@/shared/lib/page-modules'
 import { depthOf, subtreeHeight } from './constants'
@@ -14,7 +15,7 @@ import { formFromRecord, toUpdatePayload } from './menu-form'
 import { applyLocalMove, applyLocalUpdate, findNode, siblingMovePayload } from './tree-mutations'
 
 function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : '操作失败'
+  return error instanceof Error ? error.message : t('menuPage.operationFailed')
 }
 
 /** 排除自身及其子孙后的可选父树（换父 / 新增子级用） */
@@ -73,10 +74,10 @@ export function useMenuManagement() {
   async function confirmDiscardIfDirty(): Promise<boolean> {
     if (!isFormDirty.value) return true
     try {
-      await ElMessageBox.confirm('当前修改尚未保存，切换后将丢失，是否继续？', '提示', {
+      await ElMessageBox.confirm(t('menuPage.unsavedSwitch'), t('common.confirm'), {
         type: 'warning',
-        confirmButtonText: '继续',
-        cancelButtonText: '留在此页',
+        confirmButtonText: t('menuPage.continueConfirm'),
+        cancelButtonText: t('menuPage.keepHere'),
       })
       return true
     } catch {
@@ -106,7 +107,7 @@ export function useMenuManagement() {
       menuStore.markDirty()
       form.value = formFromRecord(record)
       initialForm.value = cloneForm(form.value)
-      ElMessage.success('已保存')
+      ElMessage.success(t('menuPage.saved'))
     } catch (error) {
       ElMessage.error(messageOf(error))
     } finally {
@@ -120,7 +121,9 @@ export function useMenuManagement() {
 
   async function remove(id: number): Promise<void> {
     try {
-      await ElMessageBox.confirm('确认删除该菜单？', '删除确认', { type: 'warning' })
+      await ElMessageBox.confirm(t('menuPage.confirmDelete'), t('menuPage.confirmDeleteTitle'), {
+        type: 'warning',
+      })
     } catch {
       return
     }
@@ -130,11 +133,15 @@ export function useMenuManagement() {
     } catch {
       // 有子节点（后端 409）→ 询问是否级联删除
       try {
-        await ElMessageBox.confirm('该菜单存在子菜单，是否连同子菜单一起删除？', '级联删除', {
-          type: 'warning',
-          confirmButtonText: '全部删除',
-          cancelButtonText: '取消',
-        })
+        await ElMessageBox.confirm(
+          t('menuPage.confirmCascade'),
+          t('menuPage.confirmCascadeTitle'),
+          {
+            type: 'warning',
+            confirmButtonText: t('menuPage.cascadeRemoveAll'),
+            cancelButtonText: t('common.cancel'),
+          },
+        )
       } catch {
         loading.value = false
         return
@@ -154,7 +161,7 @@ export function useMenuManagement() {
     }
     await load()
     menuStore.markDirty()
-    ElMessage.success('已删除')
+    ElMessage.success(t('menuPage.removed'))
     loading.value = false
   }
 
@@ -188,7 +195,7 @@ export function useMenuManagement() {
       selectedId.value = record.id
       form.value = formFromRecord(record)
       initialForm.value = cloneForm(form.value)
-      ElMessage.success('已创建')
+      ElMessage.success(t('menuPage.created'))
     } catch (error) {
       ElMessage.error(messageOf(error))
     } finally {
@@ -199,13 +206,13 @@ export function useMenuManagement() {
   /** 「应用变更」：拉路由 + 热替换（实现由 app 层注入，决策 D4 不调用发布接口） */
   async function applyChanges(): Promise<void> {
     if (!hotApply) {
-      ElMessage.error('热应用能力未注入（MENU_HOT_APPLY_KEY）')
+      ElMessage.error(t('menuPage.hotApplyMissing'))
       return
     }
     loading.value = true
     try {
       const { redirected } = await hotApply()
-      if (!redirected) ElMessage.success('菜单已应用')
+      if (!redirected) ElMessage.success(t('menuPage.applied'))
       menuStore.clearDirty()
     } catch (error) {
       ElMessage.error(messageOf(error))

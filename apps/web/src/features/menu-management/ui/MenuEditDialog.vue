@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FsdDialog, FsdForm, FsdFormItem, FsdInput, FsdSelect, FsdTreeSelect } from '@repo/ui'
 import type { MenuFormModel, MenuTreeNode, MenuType } from '@/entities/menu'
 import { pageComponentKeys } from '@/shared/lib/page-modules'
@@ -25,12 +26,24 @@ defineOptions({ name: 'MenuEditDialog' })
 const formRef = ref<InstanceType<typeof FsdForm> | null>(null)
 const local = ref<MenuFormModel>(createDefaultForm(props.parentId))
 const menuType = ref<MenuType>('menu')
+const { t } = useI18n()
 /** 组件路径下拉与白名单共用 shared 注册表（docs/14 §4.4） */
 const pageComponentOptions = pageComponentKeys
 /** 上级菜单下拉数据（可选父级由编排层过滤，这里只做类型适配） */
 const parentTreeData = computed(() => toTreeSelectData(props.parentOptions))
 
-const rules = createMenuFormRules(() => local.value)
+/** 菜单类型下拉：label 走 i18n，value 仍是 MenuType */
+const TYPE_LABEL_KEYS = {
+  dir: 'menuPage.typeDir',
+  menu: 'menuPage.typeMenu',
+  external: 'menuPage.typeExternal',
+} as const
+const typeOptions = computed(() =>
+  MENU_TYPE_OPTIONS.map((item) => ({ ...item, label: t(TYPE_LABEL_KEYS[item.value]) })),
+)
+
+/** rules 走 computed：切语言后重建，新触发的校验用新语言 */
+const rules = computed(() => createMenuFormRules(() => local.value))
 
 watch(
   () => props.visible,
@@ -65,50 +78,52 @@ function onClose(): void {
 <template>
   <FsdDialog
     :model-value="visible"
-    :title="type === 'root' ? '新增根菜单' : '新增子菜单'"
+    :title="type === 'root' ? t('menuPage.addRootTitle') : t('menuPage.addChildTitle')"
     width="560px"
     @update:model-value="emit('update:visible', $event)"
     @confirm="onConfirm"
     @cancel="onClose"
   >
     <FsdForm ref="formRef" :model="local" :rules="rules" label-width="88px">
-      <FsdFormItem v-if="type === 'child'" label="上级菜单" prop="parentId">
+      <FsdFormItem v-if="type === 'child'" :label="t('menuPage.parent')" prop="parentId">
         <FsdTreeSelect
           v-model="local.parentId"
           :data="parentTreeData"
           check-strictly
           filterable
           clearable
-          placeholder="顶级菜单"
+          :placeholder="t('menuPage.parentTop')"
         />
       </FsdFormItem>
-      <FsdFormItem label="菜单类型" prop="type">
+      <FsdFormItem :label="t('menuPage.menuType')" prop="type">
         <FsdSelect
           :model-value="menuType"
-          :options="MENU_TYPE_OPTIONS"
+          :options="typeOptions"
           @update:model-value="onTypeChange"
         />
-        <p v-if="menuType === 'dir'" class="menu-edit-dialog__hint">目录仅作分组，不挂载页面组件</p>
+        <p v-if="menuType === 'dir'" class="menu-edit-dialog__hint">{{ t('menuPage.dirHint') }}</p>
       </FsdFormItem>
-      <FsdFormItem label="路由名" prop="name">
-        <FsdInput v-model="local.name" placeholder="大写字母开头，如 SystemUser" />
+      <FsdFormItem :label="t('menuPage.name')" prop="name">
+        <FsdInput v-model="local.name" :placeholder="t('menuPage.phName')" />
       </FsdFormItem>
-      <FsdFormItem label="标题" prop="title">
-        <FsdInput v-model="local.title" :maxlength="20" placeholder="菜单显示标题" />
+      <FsdFormItem :label="t('menuPage.titleLabel')" prop="title">
+        <FsdInput v-model="local.title" :maxlength="20" :placeholder="t('menuPage.phTitle')" />
       </FsdFormItem>
-      <FsdFormItem label="路由地址" prop="path">
+      <FsdFormItem :label="t('menuPage.path')" prop="path">
         <FsdInput
           v-model="local.path"
-          :placeholder="menuType === 'external' ? 'https://example.com' : '/system/user'"
+          :placeholder="
+            menuType === 'external' ? t('menuPage.phExternalPath') : t('menuPage.phPath')
+          "
         />
       </FsdFormItem>
-      <FsdFormItem v-if="menuType === 'menu'" label="组件路径" prop="component">
+      <FsdFormItem v-if="menuType === 'menu'" :label="t('menuPage.component')" prop="component">
         <FsdSelect
           v-model="local.component"
           :options="pageComponentOptions"
           filterable
           allow-create
-          placeholder="选择 src/pages 下的页面"
+          :placeholder="t('menuPage.phComponentShort')"
         />
       </FsdFormItem>
     </FsdForm>

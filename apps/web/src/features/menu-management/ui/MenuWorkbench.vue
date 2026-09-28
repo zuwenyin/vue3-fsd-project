@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useWindowSize } from '@vueuse/core'
 import { FsdButton } from '@repo/ui'
 import type { MenuFormModel } from '@/entities/menu'
@@ -11,6 +12,7 @@ import MenuTreeTable from './MenuTreeTable.vue'
 defineOptions({ name: 'MenuWorkbench' })
 
 const mg = useMenuManagement()
+const { t } = useI18n()
 const { width } = useWindowSize()
 const isNarrow = computed(() => width.value < 960)
 
@@ -54,21 +56,23 @@ function startResize(event: MouseEvent): void {
 <template>
   <section class="menu-workbench">
     <header class="menu-workbench__header">
-      <h2 class="menu-workbench__title">菜单管理</h2>
+      <h2 class="menu-workbench__title">{{ t('menuPage.title') }}</h2>
       <div class="menu-workbench__actions">
-        <FsdButton :loading="mg.loading.value" @click="mg.reset()">重置</FsdButton>
+        <FsdButton :loading="mg.loading.value" @click="mg.reset()">
+          {{ t('menuPage.reset') }}
+        </FsdButton>
         <FsdButton
           v-permission="'system:menu:edit'"
           type="primary"
           :loading="mg.loading.value"
           @click="mg.applyChanges()"
         >
-          应用变更
+          {{ t('menuPage.apply') }}
         </FsdButton>
       </div>
     </header>
 
-    <p v-if="mg.hasDirty.value" class="menu-workbench__dirty">有未应用的菜单变更，应用后即时生效</p>
+    <p v-if="mg.hasDirty.value" class="menu-workbench__dirty">{{ t('menuPage.dirty') }}</p>
 
     <div class="menu-workbench__main" :class="{ 'menu-workbench__main--narrow': isNarrow }">
       <aside
@@ -104,7 +108,7 @@ function startResize(event: MouseEvent): void {
         :loading="mg.loading.value"
         @click="openCreate(mg.selectedId.value)"
       >
-        新增子级
+        {{ t('menuPage.addChild') }}
       </FsdButton>
 
       <div class="menu-workbench__detail">

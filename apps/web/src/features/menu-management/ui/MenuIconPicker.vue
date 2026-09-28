@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FsdIcon, FsdSelect } from '@repo/ui'
 import { ICON_OPTIONS } from '../model/constants'
 
@@ -15,6 +16,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | undefined]
 }>()
 
+const { t } = useI18n()
 const options = computed(() => props.options ?? [...ICON_OPTIONS])
 
 function onUpdate(value: string | number | Array<string | number> | null): void {
@@ -30,7 +32,7 @@ function onUpdate(value: string | number | Array<string | number> | null): void 
       :options="options"
       filterable
       clearable
-      placeholder="选择图标"
+      :placeholder="t('menuPage.phIcon')"
       @update:model-value="onUpdate"
     />
     <span class="menu-icon-picker__preview">

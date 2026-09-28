@@ -1,4 +1,5 @@
 import type { FormRules } from 'element-plus'
+import { t } from '@/shared/i18n'
 import type { MenuFormModel, MenuRecord } from '@/entities/menu'
 
 /** 路由名：大写字母开头，仅字母与数字（docs/14 §4.2） */
@@ -75,20 +76,20 @@ export function toUpdatePayload(form: MenuFormModel): Partial<MenuFormModel> {
 export function createMenuFormRules(getForm: () => MenuFormModel): FormRules {
   return {
     name: [
-      { required: true, message: '请输入路由名', trigger: 'blur' },
-      { pattern: MENU_NAME_PATTERN, message: '需大写字母开头，仅含字母与数字', trigger: 'blur' },
+      { required: true, message: t('menuPage.rules.nameRequired'), trigger: 'blur' },
+      { pattern: MENU_NAME_PATTERN, message: t('menuPage.rules.namePattern'), trigger: 'blur' },
     ],
     path: [
-      { required: true, message: '请输入路由地址', trigger: 'blur' },
+      { required: true, message: t('menuPage.rules.pathRequired'), trigger: 'blur' },
       {
         validator: (_rule, value: string, callback) => {
           const path = String(value ?? '')
           if (/\s/.test(path)) {
-            callback(new Error('路由地址不能包含空格'))
+            callback(new Error(t('menuPage.rules.pathNoSpace')))
             return
           }
           if (getForm().external && !isHttpUrl(path)) {
-            callback(new Error('外链必须为 http(s):// 开头的完整地址'))
+            callback(new Error(t('menuPage.rules.externalPath')))
             return
           }
           callback()
@@ -97,15 +98,15 @@ export function createMenuFormRules(getForm: () => MenuFormModel): FormRules {
       },
     ],
     title: [
-      { required: true, message: '请输入菜单标题', trigger: 'blur' },
-      { max: 20, message: '标题不超过 20 字', trigger: 'blur' },
+      { required: true, message: t('menuPage.rules.titleRequired'), trigger: 'blur' },
+      { max: 20, message: t('menuPage.rules.titleMax'), trigger: 'blur' },
     ],
     orderNo: [
       {
         validator: (_rule, value: number, callback) => {
           const n = Number(value)
           if (!Number.isInteger(n) || n < 0 || n > 99999) {
-            callback(new Error('排序需为 0–99999 的整数'))
+            callback(new Error(t('menuPage.rules.orderNoRange')))
             return
           }
           callback()

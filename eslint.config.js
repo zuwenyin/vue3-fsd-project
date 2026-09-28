@@ -103,6 +103,20 @@ export default tseslint.config(
     },
   },
   {
+    // FSD 加严（P8 / docs/01 §5）：features 不得导入 app 与 pages（需协作时上提到 pages/app 编排）
+    files: ['apps/web/src/features/**/*.{ts,vue}'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: ['@/app/*', '@/pages/*'] }],
+    },
+  },
+  {
+    // FSD 加严（P8 / docs/01 §5）：widgets 不得导入 pages
+    files: ['apps/web/src/widgets/**/*.{ts,vue}'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: ['@/pages/*'] }],
+    },
+  },
+  {
     // server 覆盖：Node 侧允许 console
     files: ['apps/server/**/*.ts'],
     languageOptions: { globals: { ...globals.node } },
