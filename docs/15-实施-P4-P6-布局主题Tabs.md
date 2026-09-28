@@ -120,10 +120,27 @@ interface Props {
 
 ### 2.6 验收（P4）
 
-- [ ] 四种布局渲染同一份 3 级菜单树均正确，`mix`/`dual` 联动正常
-- [ ] 切换布局不丢路由、不丢 Tabs、刷新后保持
-- [ ] 小屏下自动切抽屉，可正常打开/关闭
-- [ ] 菜单高亮与面包屑正确（含 `activePath` 回指）
+> 实测：2026-09-28，浏览器 **33 项断言全绿**（四布局 / 面包屑 / 抽屉 / 菜单热更新 / 双账号权限）。
+
+- [x] 四种布局渲染同一份 3 级菜单树均正确，`mix`/`dual` 联动正常
+      —— `sidebar`（210px ↔ 折叠 64px）/ `top`（无侧栏）/ `mix`（顶部一级 → 次级栏联动）/ `dual`（窄条一级 → 次级栏联动）全部实测通过
+- [x] 切换布局不丢路由、不丢 Tabs、刷新后保持
+      —— 切布局后 URL 不变；`fsd:layout` 持久化，刷新后仍为 `dual`（Tabs 属 P6，未接入）
+- [x] 小屏下自动切抽屉，可正常打开/关闭
+      —— 900px 下桌面侧栏消失 → 汉堡开抽屉 → 点遮罩关闭
+- [x] 菜单高亮与面包屑正确（含 `activePath` 回指）
+      —— `/system/user/group` 面包屑「系统管理 / 用户管理 / 用户分组」（3 级）；`activeMenuKey` 三级回指
+
+### 2.7 实施记录（P4）· 实测踩坑
+
+| #   | 现象                                                 | 根因                                                               | 结论                                                                                                                                           |
+| --- | ---------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `useDraggable(el, options)` 传 getter 函数拖拽无反应 | 该 API 只在初始化时解析元素，函数不被接受                          | 改 `useDraggable(null, options)` + `FsdTable.bodyRef` 就绪后 `draggable.start(tbody)`；同一元素不重复 `start`（`boundEl` 去重）                |
+| 2   | 拖拽后 move 被后端拒（`beforeId 不在目标层`）→ 回滚  | `beforeId` 用「深度 ≤ 新层级」查找，会命中**另一个父级**下的相邻行 | `beforeId` 必须按 **`parentId === targetParentId`** 匹配（`tree-mutations.ts` 已加回归单测）                                                   |
+| 3   | 点「系统管理」（目录）跳 `/system` 空白页            | 目录节点注册了 `name` 但没有 `component`，`hasRoute` 判定不足      | 新增 `menu-active.ts` 的 `canNavigate(router, name)`：`matched.at(-1)?.components` 存在才 push；`use-menu-navigation` / `use-root-menu` 均接入 |
+| 4   | 鼠标划过某些列时整段禁拖                             | `onMove` 对 `related` 取不到菜单标记就返回 `false`                 | `related` 解析不到标记时**放行**（交由 `onEnd` 换算）；`markOf` 支持 `td`/`span` 任意落点（`closest('tr')` 兜底）                              |
+| 5   | E2E 中 `mouse.down/move/up` 拖不动行                 | `sortablejs` 默认走 HTML5 DnD，Playwright 的 mouse API 不触发      | E2E 用 `page.dragAndDrop()`（内部 CDP `dispatchDragEvent`）；`collapse` 菜单项被 tooltip 包裹，点击需 `force: true`                            |
+| 6   | `AppHeader` 报 `user.username` 不存在                | store 只暴露 `nickname` getter（内含 `username` 回落）             | 模板统一用 `user.nickname`                                                                                                                     |
 
 ## 3. P6 · Tabs + keep-alive
 
@@ -197,7 +214,7 @@ export const useTabsStore = defineStore('tabs', () => {
 
 - `cachedViews` 直接喂给 `<keep-alive :include>`；**组件名必须等于 `route.name`**，否则缓存失效（`docs/13` §7 风险项）。
 - 刷新实现：从 `visitedViews` 中标记 → `nextTick` 后恢复，配合 `router.replace({ ...route })`。
-- `pruneInvalidViews(router)` 在 P3.5 阶段是**占位空实现**，本阶段接 `router.hasRoute` 真实逻辑；它同时驱动 `cachedViews`（computed）收缩，因此 `keep-alive` 缓存会一并剔除，无需额外清理。
+- `pruneInvalidViews(router)` **P3.5 未接入**（当时还没有 `tabsStore`），本阶段从零实现并接到 `app/router/menu-apply.ts` 的 `applyMenuChanges()` 成功分支之后（顺序：热替换 → 失效跳转 → 清页签 → `clearDirty`）；它同时驱动 `cachedViews`（computed）收缩，因此 `keep-alive` 缓存会一并剔除，无需额外清理。
 - LRU 上限默认 **20**（已定，见 `docs/04` §8 与 `docs/07` 决策表；常量集中在 `constants.ts` 便于调整）。
 - 页签标题一律经 `resolveMenuTitle()`（`docs/13` §3.4.1，决策 D2），不直接读 `meta.title`。
 
@@ -336,5 +353,8 @@ export function initTheme() {
 
 - `docs/07`：决策 D1（storage 与键常量）、D2（页签标题走 `resolveMenuTitle`）、D7（页签自绘，不引 `el-tabs`）为本文件依据
 - `docs/04` §8：`MAX_CACHE = 20` 与 LRU 策略由「待确认」转为**落地值**（常量集中在 `features/tabs/model/constants.ts`）
+- `docs/14` §5.3：`useSortable` → **`useDraggable`**（`vue-draggable-plus` 0.6.1 已更名），绑定方式改为 `useDraggable(null, options).start(tbody)`
+- `docs/14` §5.3：`toMovePayload` 的 `beforeId` 由「深度 ≤ 新层级」修订为**同父匹配**（`parentId === targetParentId`），否则会取到异父行导致后端拒绝（§2.7 坑 2）
+- `docs/14` §5.4 / 本文件 §2.3：目录节点（`component = null`）不得 push —— 判定改为 `canNavigate(router, name)`（§2.7 坑 3）
 - `docs/04` §9：验收新增「菜单热更新后失效页签与缓存被清理」
 - `docs/06` §8：测试范围新增 `AppLayout` 四模式、`MenuTree`、`ThemeSwitch` 组件测试

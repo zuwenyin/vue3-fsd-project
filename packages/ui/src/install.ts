@@ -2,6 +2,7 @@ import type { App, Plugin } from 'vue'
 import { FsdButton } from './components/FsdButton'
 import { FsdColorPicker } from './components/FsdColorPicker'
 import { FsdDialog } from './components/FsdDialog'
+import { FsdDropdown } from './components/FsdDropdown'
 import { FsdForm, FsdFormItem } from './components/FsdForm'
 import { FsdIcon } from './components/FsdIcon'
 import { FsdInput } from './components/FsdInput'
@@ -16,6 +17,7 @@ export const components = {
   FsdButton,
   FsdColorPicker,
   FsdDialog,
+  FsdDropdown,
   FsdForm,
   FsdFormItem,
   FsdIcon,

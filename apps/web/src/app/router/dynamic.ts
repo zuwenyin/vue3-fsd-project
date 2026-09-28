@@ -27,6 +27,10 @@ interface PendingRecord {
 }
 
 function toRouteRecord(node: BackendRouteNode): RouteRecordRaw | null {
+  // 外链不注册路由：菜单树里仍保留（侧边栏渲染为 <a target="_blank">，docs/15 §2.3），
+  // 否则 http(s):// 开头的 path 会被当成路由路径注册，产生永远匹配不到的路由。
+  if (node.meta.external) return null
+
   const comp = node.component === 'Layout' ? LAYOUT : resolvePageComponent(node.component)
   // 声明了 component 却解析失败 → 整节点丢弃（调用方兜底 404）
   if (node.component && !comp) return null
