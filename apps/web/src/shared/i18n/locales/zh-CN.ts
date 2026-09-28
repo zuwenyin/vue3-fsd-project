@@ -39,6 +39,13 @@ export default {
     top: '顶部栏',
     mix: '混合',
     dual: '双栏',
+    /** 布局设置抽屉（P9，docs/04 §7.4） */
+    settings: '布局设置',
+    mode: '布局模式',
+    breadcrumb: '显示面包屑',
+    pageTransition: '页面切换动画',
+    watermark: '系统水印',
+    watermarkTip: '显示当前用户名与日期',
   },
   lang: {
     zhCN: '简体中文',

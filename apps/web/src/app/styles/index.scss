@@ -17,3 +17,23 @@ body {
   color: var(--fsd-color-text);
   background: var(--fsd-color-bg);
 }
+
+// ---- 页面切换动画（P9，docs/04 §7.4）----
+// 由 AppLayout 的 <Transition name="fsd-fade-slide"> 触发；作用在 router-view 动态组件上，
+// 必须是全局类（scoped 无法稳定命中动态组件根元素）。关闭动画时 Transition 不传 name（无匹配类）。
+.fsd-fade-slide-enter-active,
+.fsd-fade-slide-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.fsd-fade-slide-enter-from {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+.fsd-fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-12px);
+}

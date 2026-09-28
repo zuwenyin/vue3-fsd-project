@@ -7,6 +7,12 @@ import type { InjectionKey, Ref } from 'vue'
  */
 export interface LayoutShell {
   toggleSidebar: () => void
+  /**
+   * 开/关「布局设置抽屉」（P9）。
+   * ★ 状态必须归 `AppLayout`：切换布局模式会重建 Header，若状态在 Header 内会随卸载丢失
+   *   （实测：在抽屉里点「顶部栏」后面板直接消失，docs/07 P9 踩坑）。
+   */
+  toggleSettings: () => void
   /** 只读：提供方传 computed，布局侧传 ref 做默认值，故用 Readonly */
   isMobile: Readonly<Ref<boolean>>
 }

@@ -21,10 +21,15 @@ const HeaderStub = defineComponent({
   name: 'AppHeader',
   setup() {
     const shell = inject(LAYOUT_SHELL_KEY)
-    return { toggle: () => shell?.toggleSidebar() }
+    return {
+      toggle: () => shell?.toggleSidebar(),
+      openSettings: () => shell?.toggleSettings(),
+    }
   },
-  template:
-    '<header class="app-header"><button type="button" title="toggle" @click="toggle">t</button></header>',
+  template: `<header class="app-header">
+    <button type="button" title="toggle" @click="toggle">t</button>
+    <button type="button" class="app-header__settings" @click="openSettings">s</button>
+  </header>`,
 })
 
 /** 让 vueuse 的 useBreakpoints 按给定视口宽度求值（happy-dom 默认 matchMedia 恒 false） */
@@ -148,6 +153,49 @@ describe('AppLayout（四布局分发 + 壳层能力）', () => {
 
     await wrapper.find('.app-header button[title]').trigger('click')
     expect(layout.collapsed).toBe(true)
+  })
+
+  it('P9：水印开关即时生效（无需刷新）', async () => {
+    const { wrapper } = await factory()
+    const layout = useLayoutStore()
+    expect(wrapper.find('.app-watermark').exists()).toBe(false)
+
+    layout.setWatermark(true)
+    await nextTick()
+    expect(wrapper.find('.app-watermark').exists()).toBe(true)
+
+    layout.setWatermark(false)
+    await nextTick()
+    expect(wrapper.find('.app-watermark').exists()).toBe(false)
+  })
+
+  it('P9：设置按钮经壳层信号开抽屉，且切布局后抽屉保持打开（状态归 AppLayout）', async () => {
+    const { wrapper } = await factory()
+    const layout = useLayoutStore()
+    expect(wrapper.find('.layout-settings').exists()).toBe(false)
+
+    await wrapper.find('.app-header__settings').trigger('click')
+    await nextTick()
+    expect(wrapper.find('.layout-settings__panel').exists()).toBe(true)
+
+    // ★ 回归：切模式会重建 Header，抽屉状态若在 Header 内会随卸载丢失（浏览器实测踩坑）
+    layout.setMode('top')
+    await nextTick()
+    expect(wrapper.find('.top-layout').exists()).toBe(true)
+    expect(wrapper.find('.layout-settings__panel').exists()).toBe(true)
+  })
+
+  it('P9：关闭页面动画后路由切换仍正常渲染（Transition 无 name）', async () => {
+    const { wrapper, router } = await factory()
+    const layout = useLayoutStore()
+    layout.setPageTransition(false)
+    await nextTick()
+
+    await router.push('/dual-page')
+    await nextTick()
+    await nextTick()
+    expect(wrapper.find('.dual-layout').exists()).toBe(true)
+    expect(wrapper.find('.stub-page').exists()).toBe(true)
   })
 
   it('小屏（<960px）隐藏桌面侧栏，抽屉由壳层状态控制', async () => {

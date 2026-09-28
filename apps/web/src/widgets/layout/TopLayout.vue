@@ -9,7 +9,11 @@ import MenuTree from './ui/MenuTree.vue'
 defineOptions({ name: 'TopLayout' })
 
 const { menu, activeKey, onSelect } = useMenuNavigation()
-const shell = inject(LAYOUT_SHELL_KEY, { toggleSidebar: () => {}, isMobile: ref(false) })
+const shell = inject(LAYOUT_SHELL_KEY, {
+  toggleSidebar: () => {},
+  toggleSettings: () => {},
+  isMobile: ref(false),
+})
 </script>
 
 <template>

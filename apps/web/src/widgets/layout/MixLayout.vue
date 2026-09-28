@@ -12,7 +12,11 @@ defineOptions({ name: 'MixLayout' })
 
 const layout = useLayoutStore()
 const { activeKey, onSelect, activeRoot, rootsOnly, subItems, onRootSelect } = useRootMenu()
-const shell = inject(LAYOUT_SHELL_KEY, { toggleSidebar: () => {}, isMobile: ref(false) })
+const shell = inject(LAYOUT_SHELL_KEY, {
+  toggleSidebar: () => {},
+  toggleSettings: () => {},
+  isMobile: ref(false),
+})
 
 /** 次级栏在移动端隐藏（走抽屉，docs/15 §2.5） */
 const showAside = computed(() => !shell.isMobile.value && subItems.value.length > 0)

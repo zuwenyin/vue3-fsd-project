@@ -29,7 +29,11 @@ const auth = useAuthStore()
 const layout = useLayoutStore()
 
 /** 抽屉/折叠的开关动作归 AppLayout，这里只发信号（避免两处持有状态） */
-const shell = inject(LAYOUT_SHELL_KEY, { toggleSidebar: () => {}, isMobile: ref(false) })
+const shell = inject(LAYOUT_SHELL_KEY, {
+  toggleSidebar: () => {},
+  toggleSettings: () => {},
+  isMobile: ref(false),
+})
 const collapseIcon = computed(() => (layout.collapsed ? 'Expand' : 'Fold'))
 
 const { t } = useI18n()
@@ -62,7 +66,8 @@ const colorPanelVisible = ref(false)
       @click="shell.toggleSidebar()"
     />
     <AppLogo v-if="showLogo" class="app-header__logo" />
-    <AppBreadcrumb v-if="showBreadcrumb" class="app-header__breadcrumb" />
+    <!-- 显隐 = 布局侧 prop 与用户偏好（设置抽屉）双开关，docs/04 §7.4 -->
+    <AppBreadcrumb v-if="showBreadcrumb && layout.breadcrumb" class="app-header__breadcrumb" />
     <div class="app-header__center">
       <slot name="center" />
     </div>
@@ -70,6 +75,13 @@ const colorPanelVisible = ref(false)
 
     <LayoutSwitch class="app-header__item" />
     <ThemeSwitch class="app-header__item" @open-custom="colorPanelVisible = true" />
+    <FsdButton
+      class="app-header__item"
+      text
+      icon="Setting"
+      :title="t('layout.settings')"
+      @click="shell.toggleSettings()"
+    />
     <LangSwitch class="app-header__item" />
     <FsdDropdown class="app-header__item" :items="userItems" @select="onUserSelect">
       <FsdIcon name="User" :size="14" />

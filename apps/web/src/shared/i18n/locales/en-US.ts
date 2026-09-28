@@ -39,6 +39,13 @@ export default {
     top: 'Top',
     mix: 'Mixed',
     dual: 'Dual column',
+    /** Layout settings drawer (P9, docs/04 §7.4) */
+    settings: 'Layout Settings',
+    mode: 'Layout mode',
+    breadcrumb: 'Show breadcrumb',
+    pageTransition: 'Page transition',
+    watermark: 'Watermark',
+    watermarkTip: 'Shows current user and date',
   },
   lang: {
     zhCN: '简体中文',

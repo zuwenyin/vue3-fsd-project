@@ -4,6 +4,7 @@
  * 页面/组件只从这里导入；slice 内部路径（`model/*` / `ui/*`）禁止穿透引用。
  */
 export { default as LayoutSwitch } from './ui/LayoutSwitch.vue'
+export { default as LayoutSettingsDrawer } from './ui/LayoutSettingsDrawer.vue'
 export { useLayoutStore } from './model/layout.store'
 export {
   LAYOUT_MODES,

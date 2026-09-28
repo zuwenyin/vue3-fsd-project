@@ -10,7 +10,11 @@ import MenuTree from './ui/MenuTree.vue'
 defineOptions({ name: 'DualLayout' })
 
 const { activeKey, onSelect, activeRoot, rootsOnly, subItems, onRootSelect } = useRootMenu()
-const shell = inject(LAYOUT_SHELL_KEY, { toggleSidebar: () => {}, isMobile: ref(false) })
+const shell = inject(LAYOUT_SHELL_KEY, {
+  toggleSidebar: () => {},
+  toggleSettings: () => {},
+  isMobile: ref(false),
+})
 
 /** 窄条（一级）+ 次级侧栏；移动端整体走抽屉（docs/15 §2.4） */
 const showAsides = computed(() => !shell.isMobile.value)

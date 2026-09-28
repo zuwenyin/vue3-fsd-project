@@ -12,7 +12,11 @@ defineOptions({ name: 'SidebarLayout' })
 
 const layout = useLayoutStore()
 const { menu, activeKey, onSelect } = useMenuNavigation()
-const shell = inject(LAYOUT_SHELL_KEY, { toggleSidebar: () => {}, isMobile: ref(false) })
+const shell = inject(LAYOUT_SHELL_KEY, {
+  toggleSidebar: () => {},
+  toggleSettings: () => {},
+  isMobile: ref(false),
+})
 
 const asideWidth = computed(() => (layout.collapsed ? '64px' : '210px'))
 </script>
