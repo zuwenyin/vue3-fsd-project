@@ -1,3 +1,4 @@
+import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('element-plus', () => ({
@@ -26,6 +27,8 @@ async function enter(name: string, path: string): Promise<void> {
 
 describe('applyMenuChanges（菜单配置页「应用变更」，docs/14 §5.2）', () => {
   beforeEach(() => {
+    // applyMenuChanges 会调 useTabsStore().pruneInvalidViews（P6 接入）
+    setActivePinia(createPinia())
     warningMock.mockClear()
     applyRoutesMock.mockClear()
     if (!router.hasRoute('Dashboard')) {

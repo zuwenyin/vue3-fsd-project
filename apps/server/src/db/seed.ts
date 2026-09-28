@@ -13,10 +13,15 @@ interface SeedMenu {
   /** 路由级权限（docs/03 §6）：空数组表示不限制 */
   roles?: string[]
   permissions?: string[]
+  /** 默认 true（保持既有种子行为）；显式 false 表示该页不进 keep-alive 缓存 */
+  keepAlive?: boolean
+  /** 固定页签：不可关闭（P6 Tabs 验收需要） */
+  affix?: boolean
 }
 
 const MENUS: SeedMenu[] = [
   {
+    // 固定页签（affix）：Tabs 中不可关闭，closeAll / LRU 淘汰时保留（docs/15 §3.2）
     name: 'Dashboard',
     parentName: null,
     path: '/dashboard',
@@ -24,6 +29,7 @@ const MENUS: SeedMenu[] = [
     title: '仪表盘',
     icon: 'Odometer',
     orderNo: 10,
+    affix: true,
   },
   {
     name: 'System',
@@ -136,12 +142,12 @@ export function seedIfEmpty(db: SqliteDatabase): void {
             null,
             menu.icon,
             menu.orderNo,
-            1,
+            menu.keepAlive === false ? 0 : 1,
             menu.hideInMenu ? 1 : 0,
             0,
             null,
             0,
-            0,
+            menu.affix ? 1 : 0,
             null,
             JSON.stringify(menu.roles ?? []),
             JSON.stringify(menu.permissions ?? []),

@@ -181,7 +181,9 @@ function startResize(event: MouseEvent): void {
 
 .menu-workbench__aside {
   min-width: 200px;
-  overflow: hidden;
+
+  // ★ 不能用 hidden：左栏拖窄后 el-table 总宽大于容器，内容会被裁掉（实测截图）
+  overflow: auto;
 }
 
 .menu-workbench__splitter {

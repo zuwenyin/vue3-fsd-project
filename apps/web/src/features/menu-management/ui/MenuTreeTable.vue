@@ -59,11 +59,13 @@ const depthMap = computed(() => {
 const columns = computed<FsdTableColumn[]>(() => {
   const list: FsdTableColumn[] = []
   if (!isNarrow.value) list.push({ key: 'drag', label: '', width: 44, slot: true })
+  // ★ 用固定 width 而非 minWidth：左栏被拖窄时 el-table 会「先压缩列、后出滚动条」，
+  //   标题列会被压到不可见（实测截图）；固定宽度保证出现横向滚动而非挤压
   list.push(
-    { key: 'title', label: '菜单标题', minWidth: 180, slot: true },
-    { key: 'path', label: '路由地址', minWidth: 130 },
+    { key: 'title', label: '菜单标题', width: 180, slot: true },
+    { key: 'path', label: '路由地址', width: 140 },
   )
-  if (!isNarrow.value) list.push({ key: 'component', label: '组件路径', minWidth: 160 })
+  if (!isNarrow.value) list.push({ key: 'component', label: '组件路径', width: 170 })
   list.push(
     { key: 'orderNo', label: '排序', width: 70 },
     { key: 'status', label: '状态', width: 76, slot: true },

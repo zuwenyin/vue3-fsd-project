@@ -228,12 +228,32 @@ export const useTabsStore = defineStore('tabs', () => {
 
 ### 3.4 验收（P6）
 
-- [ ] 打开/切换/刷新/关闭其他/全部关闭行为正确
-- [ ] 缓存生效：在页签 A 输入内容 → 切到 B → 切回 A，内容仍在
-- [ ] `affix` 页签不可关闭；刷新后 Tabs 从 `fsd:tabs` 恢复
-- [ ] 菜单热更新（删除当前菜单）后，失效页签被清理且 `keep-alive` 缓存同步剔除（`cachedViews` 随 `visitedViews` 收缩）
-- [ ] 超过 `MAX_CACHE` 时按 LRU 淘汰，不误删 `affix`
-- [ ] 页签标题走 `resolveMenuTitle()`；全仓无裸 `localStorage`，持久化键集中在 `shared/config/storage-keys.ts`
+> 实测：2026-09-28，浏览器 **16 项断言全绿** + `tabs.store` 9 条单测。
+
+- [x] 打开/切换/刷新/关闭其他/全部关闭行为正确
+      —— 导航即开页签、点击页签切换不重复开；右键「关闭其他」「全部关闭」按预期保留 affix；「全部关闭」后回到 `/dashboard`
+- [x] 缓存生效：在页签 A 输入内容 → 切到 B → 切回 A，内容仍在
+      —— 菜单页标题输入框改「缓存验证标题」→ 切用户管理再切回 → 值仍在；右键「刷新」后选中态与脏数据清空（证明是重建而非复用）
+- [x] `affix` 页签不可关闭；刷新后 Tabs 从 `fsd:tabs` 恢复
+      —— 仪表盘（种子 `affix: true`）无关闭按钮且 `closeAll` 后保留；刷新后页签集合与刷新前一致
+- [x] 菜单热更新（删除当前菜单）后，失效页签被清理且 `keep-alive` 缓存同步剔除（`cachedViews` 随 `visitedViews` 收缩）
+      —— 删除「用户分组」菜单 + 「应用变更」→ 页签从 `仪表盘|菜单管理|用户管理|用户分组` 变为三枚
+- [x] 超过 `MAX_CACHE` 时按 LRU 淘汰，不误删 `affix`
+      —— 单测覆盖（造 21 个页签 → 最久未访问者被淘汰、affix 保留；重新访问后淘汰对象切换）
+- [x] 页签标题走 `resolveMenuTitle()`；全仓无裸 `localStorage`，持久化键集中在 `shared/config/storage-keys.ts`
+
+### 3.5 实施记录（P6）· 实现要点
+
+| 项                      | 结论                                                                                                                                                                                                                                                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **keep-alive 生效前提** | `include` 匹配的是**组件 name**，必须等于 `route.name`（后端菜单 name）。已把 5 个动态页面改名：`Dashboard` / `SystemUser` / `SystemMenu` / `SystemUserGroup` / `Profile`（原先为 `XxxPage`，缓存会静默失效）                                                                                              |
+| 「刷新」实现            | 走「踢缓存 + 刷新戳」：`refreshView` 先把 name 移出 `cachedViews`（keep-alive 销毁实例），下一帧恢复并写入 `refreshStamps[name]`；`AppLayout` 的 `:key` 拼上该戳 → **仅该页** key 变化、其他页签缓存不受影响。最初尝试的「改 `_r` query 触发重渲染」实测无效（keep-alive 页的 key 是 name，不随 query 变） |
+| 恢复时机                | `AppTabs.onMounted` 内 `tabs.restore(router)` —— 组件由 AppLayout 渲染，此时守卫已完成 `applyRoutes`，`restore` 能正确 `hasRoute` 过滤，避免恢复到 404                                                                                                                                                     |
+| 不入页签的页            | `meta.hideInMenu && !meta.affix`（`Profile` 即此例）；`keepAlive: false` 的页仍在页签中但不进 `cachedViews`                                                                                                                                                                                                |
+| 种子配合                | `Dashboard` 加 `affix: true`；`sys_menu.affix`/`keep_alive` 列已接入 seed（`keep_alive` 默认 1，可用 `keepAlive: false` 关）                                                                                                                                                                               |
+| 失效清理接线            | `app/router/menu-apply.ts` 的 `applyMenuChanges()` 在热替换后调用 `useTabsStore().pruneInvalidViews(router)`（顺序：热替换 → 清页签 → 失效跳转）                                                                                                                                                           |
+
+> §2.7 补记（第 7 条）：菜单配置页左栏拖窄时，树表**列宽改为固定值 + 容器 `overflow: auto`**（原 `minWidth` 会让 el-table 优先压缩列，标题列被压到不可见；原 `overflow: hidden` 会直接裁掉溢出内容）。E2E 截图里出现的「列缺失」实为 Playwright 点击行触发 `scrollIntoView` 造成的横向滚动，非缺陷（用列宽/`scrollLeft` 实测数据确认）。
 
 ## 4. P5 · 主题系统
 
@@ -352,10 +372,10 @@ export function initTheme() {
 8. ✅ **P5-1**：`app/styles/tokens/*`（light/dark/brand）+ `element/index.scss`
 9. ✅ **P5-2**：`features/theme-switch`（`apply-theme` / `init-theme` / store / `ThemeSwitch` / 色板）
 10. ✅ **P5-3**：首屏防闪烁验证（刷新多次、节流 CPU 观察）
-11. **P6-1**：`features/tabs`（store + 操作 + LRU）
-12. **P6-2**：`AppTabs.vue`（自绘，不用 `el-tabs`）+ `ContextMenu.vue`
-13. **P6-3**：`AppLayout` 的 `<keep-alive :include>` 接入
-14. **P6-4**：`pruneInvalidViews(router)` 真实实现 + 与菜单热更新联调
+11. ✅ **P6-1**：`features/tabs`（store + 操作 + LRU）
+12. ✅ **P6-2**：`AppTabs.vue`（自绘，不用 `el-tabs`）+ `ContextMenu.vue`
+13. ✅ **P6-3**：`AppLayout` 的 `<keep-alive :include>` 接入
+14. ✅ **P6-4**：`pruneInvalidViews(router)` 真实实现 + 与菜单热更新联调
 15. 补组件测试：`AppLayout` 四模式渲染、`MenuTree` 递归、`ThemeSwitch` 变量写入、`tabs.store` 的 LRU 与 `pruneInvalidViews`
 
 ## 6. 风险与回退

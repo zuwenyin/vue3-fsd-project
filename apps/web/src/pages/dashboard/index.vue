@@ -1,5 +1,6 @@
 <script setup lang="ts">
-defineOptions({ name: 'DashboardPage' })
+// ★ 组件名必须等于后端菜单 name（route.name），否则 keep-alive :include 静默失效（docs/15 §3.2）
+defineOptions({ name: 'Dashboard' })
 </script>
 
 <template>

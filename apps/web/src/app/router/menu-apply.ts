@@ -1,5 +1,6 @@
 import type { App } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useTabsStore } from '@/features/tabs'
 import { MENU_HOT_APPLY_KEY, type MenuApplyResult } from '@/shared/lib/menu-apply'
 import { router } from './index'
 import { applyRoutes } from './dynamic'
@@ -14,6 +15,10 @@ import { applyRoutes } from './dynamic'
  */
 export async function applyMenuChanges(): Promise<MenuApplyResult> {
   await applyRoutes(router)
+
+  // 热替换后清理失效页签：cachedViews 是 computed，随 visitedViews 收缩 →
+  // keep-alive 缓存被同步剔除（docs/15 §3.2）
+  useTabsStore().pruneInvalidViews(router)
 
   const current = String(router.currentRoute.value.name ?? '')
   if (current && current !== 'Layout' && !router.hasRoute(current)) {
