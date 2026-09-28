@@ -322,13 +322,16 @@ export function initTheme() {
 
 ## 5. 分步实施顺序
 
-1. **P4-1**：`features/layout-switch`（store + 持久化 + `LayoutSwitch.vue`）
-2. **P4-2**：`widgets/layout/ui/{AppLogo,AppBreadcrumb,MenuTree,MenuItemContent}.vue`
-3. **P4-3**：`AppLayout.vue` + `SidebarLayout.vue`（先只落 sidebar，跑通链路）
-4. **P4-4**：`TopLayout` / `MixLayout` / `DualLayout` + `layout-map.ts`
-5. **P4-5**：`AppHeader.vue`（面包屑/搜索/主题/布局/语言/用户下拉）
-6. **P4-6**：响应式抽屉 `AppSidebarDrawer.vue` + `useBreakpoints`
-7. **P4-7**：`shared/config/storage-keys.ts` 落地 `fsd:tabs` / `fsd:layout` / `fsd:theme`（D1），替换散落的键字面量
+1. ✅ **P4-1**：`features/layout-switch`（store + 持久化 + `LayoutSwitch.vue`）
+2. ✅ **P4-2**：`widgets/layout/ui/{AppLogo,AppBreadcrumb,MenuTree,MenuItemContent}.vue`
+3. ✅ **P4-3**：`AppLayout.vue` + `SidebarLayout.vue`（先只落 sidebar，跑通链路）
+4. ✅ **P4-4**：`TopLayout` / `MixLayout` / `DualLayout` + `layout-map.ts`
+5. ✅ **P4-5**：`AppHeader.vue`（面包屑/搜索/主题/布局/语言/用户下拉）
+6. ✅ **P4-6**：响应式抽屉 `AppSidebarDrawer.vue` + `useBreakpoints`
+7. ✅ **P4-7**：`shared/config/storage-keys.ts` 落地 `fsd:tabs` / `fsd:layout` / `fsd:theme`（D1），替换散落的键字面量
+
+> P4 完成情况与踩坑见 §2.6 / §2.7；`@repo/ui` 本阶段新增 `FsdDropdown`（用户下拉）、`FsdButton.plain`，`FsdTable` 新增 `highlightCurrentRow`（P3.5 需要）。
+
 8. **P5-1**：`app/styles/tokens/*`（light/dark/brand）+ `element/index.scss`
 9. **P5-2**：`features/theme-switch`（`apply-theme` / `init-theme` / store / `ThemeSwitch` / 色板）
 10. **P5-3**：首屏防闪烁验证（刷新多次、节流 CPU 观察）
