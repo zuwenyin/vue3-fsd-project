@@ -1,0 +1,4 @@
+// 令牌总入口（docs/15 §4.1）：组件只消费 var(--fsd-*)，不感知主题。
+@forward './light';
+@forward './brand';
+@forward './dark';

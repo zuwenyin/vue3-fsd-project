@@ -1,0 +1,24 @@
+// 暗色令牌（docs/04 §3 / docs/15 §4.2）：由 html.dark 驱动，切换只改令牌层。
+// Element Plus 侧的 `--el-*` 暗色值来自 element-plus/theme-chalk/dark/css-vars.css
+// （见 app/styles/element/index.scss），品牌色仍由 JS 运行时写入。
+html.dark {
+  --fsd-color-bg: #1f2329;
+  --fsd-color-bg-sub: #262b33;
+  --fsd-color-bg-page: #16191d;
+  --fsd-color-border: #33383f;
+  --fsd-color-text: #e5e6eb;
+  --fsd-color-text-secondary: #c9cdd4;
+  --fsd-color-text-weak: #86909c;
+
+  // 功能色在暗底上略提亮，保持可辨识
+  --fsd-color-success: #23c343;
+  --fsd-color-warning: #ff9a2e;
+  --fsd-color-danger: #f76560;
+  --fsd-shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
+
+  // 弹层层次（docs/04 §2：语义变量层）：EP 默认 dark 下 `--el-bg-color` 与页面几乎同色，
+  // Dialog / 下拉 / Tooltip 会「糊成一片」；这里把浮层提到 --fsd-color-bg-sub 一档
+  --el-bg-color-overlay: #262b33;
+  --el-dialog-bg-color: #262b33;
+  --el-mask-color: rgb(0 0 0 / 60%);
+}

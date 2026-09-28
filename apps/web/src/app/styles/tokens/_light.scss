@@ -1,11 +1,8 @@
-// 设计令牌基线（docs/15 §4.2 / docs/14 §4.5）。
-// P5 将拆分为 _light / _dark / _brand 并接入主题切换；本阶段先落 light 值，
-// 保证 P3.5 起所有颜色 / 间距 / 字号引用 var(--fsd-*) 可用（Stylelint 强制）。
+// 浅色基线令牌（docs/04 §2 / docs/15 §4.2）。
+// Element Plus 的 `--el-*` 基础值由各组件按需样式带来的 base.css 提供，
+// 品牌色相关的 `--el-color-primary*` 由 features/theme-switch 运行时写入（见 _brand.scss 注释）。
 :root {
   // ---- 色板 ----
-  --fsd-color-primary: #2f6fed;
-  --fsd-color-primary-light-3: #5a8df6;
-  --fsd-color-primary-dark-2: #1d4fbf;
   --fsd-color-bg: #fff;
   --fsd-color-bg-sub: #f5f7fa;
   --fsd-color-bg-page: #f2f3f5;

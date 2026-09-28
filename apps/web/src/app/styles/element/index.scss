@@ -1,0 +1,3 @@
+// Element Plus 暗色变量（docs/04 §3 / docs/15 §4.3）：
+// 引入后由 html.dark 驱动，EP 组件的 `--el-*` 会整体切换到暗色值。
+@use 'element-plus/theme-chalk/dark/css-vars.css';

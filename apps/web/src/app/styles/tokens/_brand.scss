@@ -1,0 +1,8 @@
+// 品牌色占位（docs/04 §4 / docs/15 §4.2）：默认值随浅色基线，
+// 运行时由 features/theme-switch 的 applyPrimaryColor() 以 inline style 覆盖
+// `--fsd-color-primary*` 与 `--el-color-primary*`（色阶经 @repo/utils 的 generatePrimaryShades）。
+:root {
+  --fsd-color-primary: #2f6fed;
+  --fsd-color-primary-light-3: #5a8df6;
+  --fsd-color-primary-dark-2: #1d4fbf;
+}

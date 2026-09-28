@@ -3,7 +3,7 @@ defineOptions({ name: 'DashboardPage' })
 </script>
 
 <template>
-  <div class="dashboard">仪表盘（P4 后由动态路由接管）</div>
+  <div class="dashboard">仪表盘占位页（待接入真实看板需求）</div>
 </template>
 
 <style scoped lang="scss">

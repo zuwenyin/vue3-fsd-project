@@ -313,12 +313,29 @@ export function initTheme() {
 
 ### 4.4 验收（P5）
 
-- [ ] 明暗切换（含 auto 跟随系统）无闪烁，EP 组件整体跟随
-- [ ] 首屏刷新无 FOUC（`initTheme` 先于 `mount`）
-- [ ] 自定义品牌色后按钮/链接/选中态/悬浮态色阶正确（重点 light-3/5/7/8/9）
-- [ ] 主题配置刷新后从 `fsd:theme` 正确恢复（走 `storage`，非裸 `localStorage`）
-- [ ] 四种布局切换不丢路由、不丢 Tabs；刷新后布局与主题均保持一致（与 §2.6 交叉验收）
-- [ ] `generatePrimaryShades` 单测通过，覆盖率计入 `@repo/utils ≥ 90%`
+> 实测：2026-09-28，浏览器 **15 项断言全绿**（明暗 / auto / 品牌色与色阶 / 刷新保持 / 无闪烁 / 恢复默认）。
+
+- [x] 明暗切换（含 auto 跟随系统）无闪烁，EP 组件整体跟随
+      —— 切深色：`html.dark` + 背景 `rgb(255,255,255) → rgb(31,35,41)`、EP `--el-bg-color=#141414`；`auto` 下系统切浅色自动取消 `dark`
+- [x] 首屏刷新无 FOUC（`initTheme` 先于 `mount`）
+      —— 刷新后 `DOMContentLoaded` 时刻 `html` 已带 `dark` 类（实测 `class="dark"`）
+- [x] 自定义品牌色后按钮/链接/选中态/悬浮态色阶正确（重点 light-3/5/7/8/9）
+      —— `--el-color-primary-light-3/5/7/8/9`、`dark-2` 与 `--fsd-color-primary*` 同步写入；单测按 `docs/04` §4 参考值断言
+- [x] 主题配置刷新后从 `fsd:theme` 正确恢复（走 `storage`，非裸 `localStorage`）
+- [~] 四种布局切换不丢路由、不丢 Tabs；刷新后布局与主题均保持一致（与 §2.6 交叉验收）
+  —— 布局与主题「刷新后保持一致」已验（P4/P5）；**不丢 Tabs 待 P6**
+- [x] `generatePrimaryShades` 单测通过，覆盖率计入 `@repo/utils ≥ 90%`（P1 起已有 51 用例覆盖）
+
+### 4.5 实施记录（P5）· 实现要点
+
+| 项               | 结论                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 令牌文件结构     | `tokens/{_light,_brand,_dark,_index}.scss` + `styles/element/index.scss`（`@use 'element-plus/theme-chalk/dark/css-vars.css'`，Sass 直接内联 CSS，实测 dev/build 均通过） |
+| 默认品牌色       | 取 `#2F6FED`（与 `_brand.scss` 基线一致）；预设色板首项设为「品牌蓝 #2F6FED」，避免「默认值不在预设里」（`docs/04` §4 的 8 个预设全部保留）                               |
+| store 副作用时机 | `watch(..., { flush: 'sync' })`：主题需**同步**生效；默认 pre-flush 会让 `setMode` 后的同步读取拿不到新值（实测 2 个单测失败）                                            |
+| 首屏注入         | `main.ts` 顶部 `initTheme()`：只依赖 storage + DOM、**不依赖 pinia**，先于 `mount()`；store 初始化读同一份偏好，状态天然一致                                              |
+| 暗色弹层         | EP dark 下 `--el-bg-color` 与页面几乎同色，Dialog / 下拉会糊成一片 → `_dark.scss` 覆盖 `--el-bg-color-overlay` / `--el-dialog-bg-color` 到 `#262B33`（截图为证）          |
+| 主题入口         | `AppHeader` 的 `ThemeSwitch`（模式下拉 + 「自定义品牌色…」）+ `ColorPickerPanel`（预设色板 + `FsdColorPicker` + 恢复默认）；P5 前的中文占位按钮已移除                     |
 
 ## 5. 分步实施顺序
 
@@ -332,9 +349,9 @@ export function initTheme() {
 
 > P4 完成情况与踩坑见 §2.6 / §2.7；`@repo/ui` 本阶段新增 `FsdDropdown`（用户下拉）、`FsdButton.plain`，`FsdTable` 新增 `highlightCurrentRow`（P3.5 需要）。
 
-8. **P5-1**：`app/styles/tokens/*`（light/dark/brand）+ `element/index.scss`
-9. **P5-2**：`features/theme-switch`（`apply-theme` / `init-theme` / store / `ThemeSwitch` / 色板）
-10. **P5-3**：首屏防闪烁验证（刷新多次、节流 CPU 观察）
+8. ✅ **P5-1**：`app/styles/tokens/*`（light/dark/brand）+ `element/index.scss`
+9. ✅ **P5-2**：`features/theme-switch`（`apply-theme` / `init-theme` / store / `ThemeSwitch` / 色板）
+10. ✅ **P5-3**：首屏防闪烁验证（刷新多次、节流 CPU 观察）
 11. **P6-1**：`features/tabs`（store + 操作 + LRU）
 12. **P6-2**：`AppTabs.vue`（自绘，不用 `el-tabs`）+ `ContextMenu.vue`
 13. **P6-3**：`AppLayout` 的 `<keep-alive :include>` 接入

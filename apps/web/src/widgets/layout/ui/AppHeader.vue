@@ -6,6 +6,7 @@ import { FsdButton, FsdDropdown, FsdIcon, type FsdDropdownItem } from '@repo/ui'
 import { useUserStore } from '@/entities/user'
 import { useAuthStore } from '@/features/auth'
 import { LayoutSwitch, useLayoutStore } from '@/features/layout-switch'
+import { ColorPickerPanel, ThemeSwitch } from '@/features/theme-switch'
 import { LAYOUT_SHELL_KEY } from '../model/layout-shell'
 import AppBreadcrumb from './AppBreadcrumb.vue'
 import AppLogo from './AppLogo.vue'
@@ -45,9 +46,7 @@ async function onUserSelect(value: string): Promise<void> {
   if (value === 'profile' && router.hasRoute('Profile')) await router.push({ name: 'Profile' })
 }
 
-function onThemePlaceholder(): void {
-  ElMessage.info('主题切换在 P5 接入')
-}
+const colorPanelVisible = ref(false)
 
 function onLangPlaceholder(): void {
   ElMessage.info('多语言在 P7 接入')
@@ -71,13 +70,7 @@ function onLangPlaceholder(): void {
     <span class="app-header__spacer" />
 
     <LayoutSwitch class="app-header__item" />
-    <FsdButton
-      class="app-header__button"
-      text
-      icon="Sunny"
-      title="主题（P5 接入）"
-      @click="onThemePlaceholder"
-    />
+    <ThemeSwitch class="app-header__item" @open-custom="colorPanelVisible = true" />
     <FsdButton class="app-header__button" text title="多语言（P7 接入）" @click="onLangPlaceholder">
       中/EN
     </FsdButton>
@@ -86,6 +79,8 @@ function onLangPlaceholder(): void {
       <span class="app-header__user">{{ user.nickname }}</span>
       <FsdIcon name="ArrowDown" :size="12" />
     </FsdDropdown>
+
+    <ColorPickerPanel v-model:visible="colorPanelVisible" />
   </header>
 </template>
 
