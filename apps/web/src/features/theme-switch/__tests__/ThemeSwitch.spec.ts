@@ -32,7 +32,8 @@ function menuItems(): HTMLElement[] {
 }
 
 async function factory() {
-  const wrapper = mount(ThemeSwitch, { global: { plugins: [i18n] } })
+  // i18n 由 vitest.setup.ts 全局注册（重复传会触发 Vue 的 already-applied 警告）
+  const wrapper = mount(ThemeSwitch)
   await wrapper.find('.fsd-dropdown__trigger').trigger('click')
   await nextTick()
   await new Promise((resolve) => setTimeout(resolve, 0))

@@ -6,8 +6,9 @@ import { afterAll, afterEach, beforeAll } from 'vitest'
 import { i18n } from '@/shared/i18n'
 import { server } from './mocks/server'
 
-// 组件普遍使用 useI18n()（P7 起），此处全局注册一次即可；
-// 个别 spec 自行传 plugins 时同一实例会被 Vue 忽略（不重复安装）。
+// 组件普遍使用 useI18n()（P7 起），此处全局注册一次即可。
+// ★ 各 spec 不要再显式传 `plugins: [i18n]`：VTU 会与全局插件合并 → Vue 打出
+//   「Plugin has already been applied to target app」警告刷屏（实测每个 mount 一条）。
 config.global.plugins = [i18n]
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }))

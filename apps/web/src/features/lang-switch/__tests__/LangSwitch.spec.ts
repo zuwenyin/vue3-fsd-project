@@ -57,7 +57,7 @@ describe('LangSwitch（语言切换）', () => {
     setActivePinia(createPinia())
     // 模拟首屏流程：i18n 初始 locale 由持久化值决定
     i18n.global.locale.value = 'en-US'
-    const wrapper = mount(LangSwitch, { global: { plugins: [i18n] } })
+    const wrapper = mount(LangSwitch)
     await nextTick()
 
     expect(wrapper.find('.lang-switch__tag').text()).toBe('EN')

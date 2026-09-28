@@ -40,7 +40,7 @@ function createTestRouter() {
 async function factory(path = '/dashboard') {
   const router = createTestRouter()
   await router.push(path)
-  const wrapper = mount(AppTabs, { global: { plugins: [router, i18n] } })
+  const wrapper = mount(AppTabs, { global: { plugins: [router] } })
   await nextTick()
   return { wrapper, router }
 }

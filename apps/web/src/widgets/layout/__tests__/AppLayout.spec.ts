@@ -1,15 +1,31 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, inject, nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { storage } from '@repo/utils'
 import { i18n } from '@/shared/i18n'
 import { TABS_KEY } from '@/shared/config/storage-keys'
 import { useLayoutStore } from '@/features/layout-switch'
 import AppLayout from '../AppLayout.vue'
+import { LAYOUT_SHELL_KEY } from '../model/layout-shell'
 
 const Blank = { template: '<div class="stub-page" />' }
+
+/**
+ * 轻量 Header 替身：真实 `AppHeader` 内含 EP 下拉/选择器（LayoutSwitch / ThemeSwitch / LangSwitch），
+ * 在 happy-dom 下渲染极慢（实测该文件曾是 35s）。本文件只验证「壳层注入协议 + 布局分发 + 状态切换」，
+ * 故保留折叠按钮与注入链路，其余细节交给真实浏览器 E2E（docs/15 §2.6）。
+ */
+const HeaderStub = defineComponent({
+  name: 'AppHeader',
+  setup() {
+    const shell = inject(LAYOUT_SHELL_KEY)
+    return { toggle: () => shell?.toggleSidebar() }
+  },
+  template:
+    '<header class="app-header"><button type="button" title="toggle" @click="toggle">t</button></header>',
+})
 
 /** 让 vueuse 的 useBreakpoints 按给定视口宽度求值（happy-dom 默认 matchMedia 恒 false） */
 function stubViewport(width: number): void {
@@ -64,7 +80,13 @@ async function factory(path = '/dashboard') {
   const router = createTestRouter()
   await router.push(path)
   await router.isReady()
-  const wrapper = mount(AppLayout, { global: { plugins: [router, i18n] } })
+  const wrapper = mount(AppLayout, {
+    global: {
+      plugins: [router],
+      // i18n 由 vitest.setup.ts 全局注册；FsdMenu/MenuTree 渲染 EP 菜单，布局分发用例无需真实菜单
+      stubs: { AppHeader: HeaderStub, FsdMenu: true, MenuTree: true },
+    },
+  })
   await nextTick()
   return { wrapper, router }
 }
@@ -87,10 +109,8 @@ describe('AppLayout（四布局分发 + 壳层能力）', () => {
     const { wrapper } = await factory()
     expect(wrapper.find('.sidebar-layout').exists()).toBe(true)
     expect(wrapper.find('.app-tabs').exists()).toBe(true)
-  }, 15000)
+  })
 
-  // ★ 布局切换会重建布局组件（含 EP 菜单/下拉），happy-dom 下首渲染较慢，
-  //   默认 5s 超时不够（实测需 ~6–10s），这里统一放宽
   it('切换模式即时换布局（不重建路由）', async () => {
     const { wrapper, router } = await factory()
     const layout = useLayoutStore()
@@ -109,7 +129,7 @@ describe('AppLayout（四布局分发 + 壳层能力）', () => {
     expect(wrapper.find('.dual-layout').exists()).toBe(true)
     // 布局切换不影响当前路由
     expect(router.currentRoute.value.name).toBe('Dashboard')
-  }, 15000)
+  })
 
   it('route.meta.layout 覆盖全局模式', async () => {
     const { wrapper, router } = await factory()
@@ -119,7 +139,7 @@ describe('AppLayout（四布局分发 + 壳层能力）', () => {
     await nextTick()
     expect(wrapper.find('.dual-layout').exists()).toBe(true)
     expect(wrapper.find('.sidebar-layout').exists()).toBe(false)
-  }, 15000)
+  })
 
   it('桌面下 Header 折叠按钮切换 layout.collapsed', async () => {
     const { wrapper } = await factory()
@@ -128,7 +148,7 @@ describe('AppLayout（四布局分发 + 壳层能力）', () => {
 
     await wrapper.find('.app-header button[title]').trigger('click')
     expect(layout.collapsed).toBe(true)
-  }, 15000)
+  })
 
   it('小屏（<960px）隐藏桌面侧栏，抽屉由壳层状态控制', async () => {
     stubViewport(800)
@@ -144,5 +164,5 @@ describe('AppLayout（四布局分发 + 壳层能力）', () => {
     await wrapper.find('.app-sidebar-drawer__mask').trigger('click')
     await nextTick()
     expect(wrapper.find('.app-sidebar-drawer').exists()).toBe(false)
-  }, 15000)
+  })
 })

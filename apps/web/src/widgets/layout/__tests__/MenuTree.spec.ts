@@ -51,7 +51,8 @@ const items: MenuItem[] = [
 ]
 
 function factory() {
-  return mount(Host, { props: { items }, global: { plugins: [i18n] } })
+  // i18n 由 vitest.setup.ts 全局注册（重复传会触发 Vue 的 already-applied 警告）
+  return mount(Host, { props: { items } })
 }
 
 describe('MenuTree（四种布局共用的递归菜单）', () => {
