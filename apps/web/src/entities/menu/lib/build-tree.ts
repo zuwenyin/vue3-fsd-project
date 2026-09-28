@@ -42,6 +42,7 @@ function toItems(nodes: BackendRouteNode[], parentPath: string): MenuItem[] {
       titleKey: meta.titleKey,
       icon: meta.icon,
       affix: meta.affix,
+      external: meta.external,
       children: children.length > 0 ? children : undefined,
     })
   }

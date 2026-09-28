@@ -81,6 +81,15 @@ describe('FsdTable', () => {
     wrapper.unmount()
   })
 
+  it('highlightCurrentRow 开启时点击行触发 current-change（默认关闭 → 只发 row-click）', async () => {
+    const wrapper = await mountTable({ data: flatRows, columns, highlightCurrentRow: true })
+    await wrapper.find('tbody tr').trigger('click')
+    await flushPromises()
+    expect(wrapper.emitted('row-click')?.[0]?.[0]).toMatchObject({ id: 1 })
+    expect(wrapper.emitted('current-change')?.[0]?.[0]).toMatchObject({ id: 1 })
+    wrapper.unmount()
+  })
+
   it('expose bodyRef 指向 tbody（供 vue-draggable-plus 绑定）', async () => {
     const wrapper = await mountTable({ data: flatRows, columns })
     const exposed = wrapper.vm as unknown as { bodyRef: HTMLElement | null }

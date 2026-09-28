@@ -15,6 +15,7 @@ const props = withDefaults(
     icon?: string
     text?: boolean
     link?: boolean
+    plain?: boolean
   }>(),
   { type: 'default', size: 'default' },
 )

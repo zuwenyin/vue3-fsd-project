@@ -25,6 +25,7 @@ catalog:
   axios: 1.20.0
   vue-draggable-plus: 0.6.1
   sortablejs: 1.15.7
+  '@types/sortablejs': 1.15.9
   # ---- 构建 / 类型 ----
   vite: 8.3.0
   '@vitejs/plugin-vue': 6.0.9

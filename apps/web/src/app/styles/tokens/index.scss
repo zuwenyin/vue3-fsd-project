@@ -1,2 +1,40 @@
-// 占位：P5 填充 light / dark / brand 三组令牌（docs/04 §2、docs/15）
-// 本阶段仅保证 @use 与 var(--fsd-*) 引用可用
+// 设计令牌基线（docs/15 §4.2 / docs/14 §4.5）。
+// P5 将拆分为 _light / _dark / _brand 并接入主题切换；本阶段先落 light 值，
+// 保证 P3.5 起所有颜色 / 间距 / 字号引用 var(--fsd-*) 可用（Stylelint 强制）。
+:root {
+  // ---- 色板 ----
+  --fsd-color-primary: #2f6fed;
+  --fsd-color-primary-light-3: #5a8df6;
+  --fsd-color-primary-dark-2: #1d4fbf;
+  --fsd-color-bg: #fff;
+  --fsd-color-bg-sub: #f5f7fa;
+  --fsd-color-bg-page: #f2f3f5;
+  --fsd-color-border: #e5e6eb;
+  --fsd-color-text: #1f2329;
+  --fsd-color-text-secondary: #4e5969;
+  --fsd-color-text-weak: #86909c;
+  --fsd-color-success: #00b42a;
+  --fsd-color-warning: #ff7d00;
+  --fsd-color-danger: #f53f3f;
+
+  // ---- 字体 ----
+  --fsd-font-family:
+    'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', 'Hiragino Sans GB', arial, sans-serif;
+  --fsd-font-size-base: 14px;
+  --fsd-font-size-lg: 16px;
+  --fsd-font-size-xl: 18px;
+  --fsd-font-size-heading: 20px;
+
+  // ---- 层级（Stylelint z-index 强制：不得写裸数字） ----
+  --fsd-z-index-drawer: 1000;
+
+  // ---- 间距 / 圆角 / 阴影 ----
+  --fsd-space-xs: 4px;
+  --fsd-space-sm: 8px;
+  --fsd-space-md: 12px;
+  --fsd-space-lg: 16px;
+  --fsd-space-xl: 24px;
+  --fsd-radius-sm: 4px;
+  --fsd-radius-md: 8px;
+  --fsd-shadow-md: 0 4px 12px rgb(31 35 41 / 10%);
+}

@@ -55,6 +55,17 @@ const MENUS: SeedMenu[] = [
     permissions: ['system:menu:view'],
   },
   {
+    // 3 级节点：用于四布局的多级菜单 / 面包屑演示，以及「3 级不能再加子级」的验收（docs/14 §5.4）
+    name: 'SystemUserGroup',
+    parentName: 'SystemUser',
+    path: 'group',
+    component: 'system/user/group/index',
+    title: '用户分组',
+    icon: 'Collection',
+    orderNo: 10,
+    permissions: ['system:user:view'],
+  },
+  {
     name: 'Profile',
     parentName: null,
     path: '/profile',

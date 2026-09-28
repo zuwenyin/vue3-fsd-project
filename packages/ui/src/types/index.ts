@@ -24,8 +24,19 @@ export interface FsdTableProps<T = Record<string, unknown>> {
   rowKey?: string
   treeProps?: { children: string; hasChildren?: string }
   defaultExpandAll?: boolean
+  /** 点击行即高亮当前行，并触发 current-change（docs/14 §4.1 树形表格选中） */
+  highlightCurrentRow?: boolean
   pagination?: false | { page: number; pageSize: number; total: number }
   emptyText?: string
+}
+
+export interface FsdDropdownItem {
+  label: string
+  value: string
+  icon?: string
+  /** 与前一项之间显示分隔线 */
+  divided?: boolean
+  disabled?: boolean
 }
 
 export type FsdButtonType = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default'

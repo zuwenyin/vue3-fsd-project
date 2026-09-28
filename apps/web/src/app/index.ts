@@ -8,6 +8,7 @@ import { setupMock } from './providers/mock'
 import { appDirectives } from './directives'
 import { registerDirectives } from '@/shared/lib/directives'
 import { setupRouterGuard } from './router/guard'
+import { provideMenuHotApply } from './router/menu-apply'
 import './router/types'
 
 /**
@@ -24,6 +25,7 @@ export async function bootstrap(): Promise<VueApp> {
   app.use(router)
   setupRouterGuard()
   registerDirectives(app, appDirectives)
+  provideMenuHotApply(app) // 菜单配置页「应用变更」经注入下放（features 不得导入 app/*）
 
   return app
 }

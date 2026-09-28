@@ -35,13 +35,15 @@ export interface RouteMetaPayload {
 export interface MenuItem {
   /** route.name */
   key: string
-  /** 可跳转路径（子级已拼接父级） */
+  /** 可跳转路径（子级已拼接父级）；`external` 时为完整外链地址 */
   path: string
   title: string
   /** 决策 D2：i18n key，P7 接入后生效 */
   titleKey?: string
   icon?: string
   affix?: boolean
+  /** 外链：不注册路由，菜单渲染为 `<a target="_blank">`（docs/15 §2.3） */
+  external?: boolean
   children?: MenuItem[]
 }
 
@@ -72,4 +74,42 @@ export interface MenuRecord {
   publishedAt?: string | null
   createdAt: string
   updatedAt: string
+}
+
+/** 管理树节点（apps/server `GET /api/menus/tree` 同构：children 恒为数组） */
+export interface MenuTreeNode extends MenuRecord {
+  children: MenuTreeNode[]
+}
+
+/** 菜单类型（仅新增 Dialog 的表单切换用，docs/14 §2） */
+export type MenuType = 'dir' | 'menu' | 'external'
+
+/** 编辑表单模型：MenuRecord 的可编辑子集（docs/14 §2） */
+export interface MenuFormModel {
+  parentId: number | null
+  name: string
+  path: string
+  component?: string
+  redirect?: string
+  title: string
+  titleKey?: string
+  icon?: string
+  orderNo: number
+  keepAlive: boolean
+  hideInMenu: boolean
+  hideChildrenInMenu: boolean
+  activePath?: string
+  external: boolean
+  affix: boolean
+  layout?: LayoutMode
+  roles: string[]
+  permissions: string[]
+  status: 0 | 1
+}
+
+/** 移动载荷（与 apps/server MoveMenuPayload 同构）：beforeId 省略 / null = 追加到末尾 */
+export interface MoveMenuPayload {
+  id: number
+  targetParentId: number | null
+  beforeId?: number | null
 }

@@ -275,7 +275,7 @@ export function createDatabase(file: string): SqliteDatabase {
 
 - 用户：`admin / admin123`（`roles: ['admin']`，`permissions: ['*']`）、`editor / editor123`（`roles: ['editor']`，`permissions: ['system:menu:view']`）。
 - **权限列说明（P3 实施补充）**：最初种子菜单不带 `roles` / `permissions`，导致 `docs/13` §6「editor 无权限菜单被过滤」无法实测。现为 `SystemUser` / `SystemMenu` 补上 `view` 权限：editor 只能看到「菜单管理」，`/system/user` 直连落 404。
-- 种子构成 **3 级路由树**（`System` → `SystemUser`），用于验证四布局与面包屑。
+- 种子实际为 **2 级**（`System` → `SystemUser` / `SystemMenu`，加顶级 `Dashboard` / `Profile`），用于验证四布局与面包屑；**3 级节点需用菜单配置页新建**（`MAX_DEPTH = 3` 只在写入时校验，不预置数据）。
 - `System` 是**纯分组目录**：`component` 必须为空（`docs/03` §1 语义）。若填 `Layout` 会与常量路由的 `Layout` 冲突导致 `AppLayout` 嵌套渲染。
 - `Profile` 对应页面 `pages/profile/index.vue` 必须在 P2 建立占位（见 `docs/12` §2），否则会被 `resolvePageComponent` 判为未命中而整节点丢弃。
 - `seed` 只在表为空时写入；`pnpm db:reset` 可强制重建。

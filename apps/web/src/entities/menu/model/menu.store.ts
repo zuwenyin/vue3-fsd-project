@@ -7,6 +7,8 @@ export const useMenuStore = defineStore('menu', {
   state: () => ({
     tree: [] as MenuItem[],
     rawRoutes: [] as BackendRouteNode[],
+    /** 决策 D13：hasDirty 唯一归属 menuStore；useMenuManagement 只读 */
+    hasDirty: false,
   }),
   actions: {
     setRoutes(routes: BackendRouteNode[]): MenuItem[] {
@@ -17,9 +19,17 @@ export const useMenuStore = defineStore('menu', {
     setTree(tree: MenuItem[]): void {
       this.tree = tree
     },
+    /** 有未应用的菜单变更（保存 / 拖拽 / 增删后置位，「应用变更」成功后清零） */
+    markDirty(): void {
+      this.hasDirty = true
+    },
+    clearDirty(): void {
+      this.hasDirty = false
+    },
     clear(): void {
       this.tree = []
       this.rawRoutes = []
+      this.hasDirty = false
     },
   },
 })

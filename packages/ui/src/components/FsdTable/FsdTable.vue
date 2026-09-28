@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<FsdTableProps<T>>(), {
   rowKey: 'id',
   loading: false,
   defaultExpandAll: false,
+  highlightCurrentRow: false,
 })
 
 const emit = defineEmits<{
@@ -80,6 +81,7 @@ defineExpose({ bodyRef, toggleRowExpansion, toggleExpandAll, refreshSortable: sy
       :row-key="rowKey"
       :tree-props="treeProps"
       :default-expand-all="defaultExpandAll"
+      :highlight-current-row="highlightCurrentRow"
       @row-click="emit('row-click', $event)"
       @current-change="emit('current-change', $event)"
       @selection-change="emit('selection-change', $event)"
