@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { ElTreeSelect } from 'element-plus'
 import 'element-plus/es/components/tree-select/style/css'
+import type { FsdSize } from '../../types'
 
 defineOptions({ name: 'FsdTreeSelect' })
 
@@ -16,6 +17,8 @@ const fsProps = defineProps<{
   filterable?: boolean
   checkStrictly?: boolean
   placeholder?: string
+  /** 不传时继承 ElConfigProvider.size（P12 紧凑度联动） */
+  size?: FsdSize
 }>()
 
 const emit = defineEmits<{
@@ -40,6 +43,7 @@ function onChange(value: string | number | null): void {
     :filterable="filterable"
     :check-strictly="checkStrictly"
     :placeholder="placeholder"
+    :size="size"
     @change="onChange"
     @update:model-value="emit('update:modelValue', $event)"
   />

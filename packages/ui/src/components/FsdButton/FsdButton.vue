@@ -17,7 +17,9 @@ const props = withDefaults(
     link?: boolean
     plain?: boolean
   }>(),
-  { type: 'default', size: 'default' },
+  // ★ 不设 size 默认值（P12）：undefined 时 EP 的 useSize 回落 ElConfigProvider.size，
+  //   使「紧凑度」档位能整体缩放组件；显式传 size 的调用点不受影响（默认档与旧行为一致）
+  { type: 'default' },
 )
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>()

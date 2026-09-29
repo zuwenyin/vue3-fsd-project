@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { ElOption, ElSelect } from 'element-plus'
 // select 的按需样式已包含 option / option-group / popper / scrollbar
 import 'element-plus/es/components/select/style/css'
-import type { FsdOption } from '../../types'
+import type { FsdOption, FsdSize } from '../../types'
 
 export type FsdSelectValue = string | number | Array<string | number> | null
 
@@ -19,6 +19,8 @@ const props = withDefaults(
     clearable?: boolean
     placeholder?: string
     disabled?: boolean
+    /** 不传时继承 ElConfigProvider.size（P12 紧凑度联动） */
+    size?: FsdSize
   }>(),
   { clearable: true },
 )
@@ -49,6 +51,7 @@ function onChange(value: FsdSelectValue): void {
     :clearable="clearable"
     :placeholder="placeholder"
     :disabled="disabled"
+    :size="size"
     @change="onChange"
     @update:model-value="emit('update:modelValue', $event)"
   >

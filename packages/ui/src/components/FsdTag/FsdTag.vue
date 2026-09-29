@@ -12,7 +12,8 @@ const props = withDefaults(
     effect?: 'dark' | 'light' | 'plain'
     round?: boolean
   }>(),
-  { type: 'primary', size: 'default', effect: 'light' },
+  // ★ 不设 size 默认值（P12）：undefined 时 EP 回落 ElConfigProvider.size（紧凑度联动）
+  { type: 'primary', effect: 'light' },
 )
 </script>
 

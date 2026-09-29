@@ -82,6 +82,7 @@ defineExpose({ bodyRef, toggleRowExpansion, toggleExpandAll, refreshSortable: sy
       :tree-props="treeProps"
       :default-expand-all="defaultExpandAll"
       :highlight-current-row="highlightCurrentRow"
+      :size="size"
       @row-click="emit('row-click', $event)"
       @current-change="emit('current-change', $event)"
       @selection-change="emit('selection-change', $event)"
@@ -112,6 +113,7 @@ defineExpose({ bodyRef, toggleRowExpansion, toggleExpandAll, refreshSortable: sy
       :current-page="pagination.page"
       :page-size="pagination.pageSize"
       :total="pagination.total"
+      :size="size"
       layout="total, prev, pager, next, jumper"
       @current-change="emit('update:page', $event)"
     />

@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { ElConfigProvider } from 'element-plus'
+import { FsdButton } from '@repo/ui'
 import { storage } from '@repo/utils'
 import { THEME_KEY } from '@/shared/config/storage-keys'
 import { useLangStore } from '@/features/lang-switch'
@@ -67,5 +68,38 @@ describe('App.vue（壳层与主题联动，P11）', () => {
     expect(provider.props('locale')).toMatchObject({ name: 'en' })
 
     lang.setLang('zh-CN')
+  })
+
+  it('P12 尺寸透传：紧凑/宽松档位让未显式指定 size 的组件渲染 size 类名', async () => {
+    const theme = useThemeStore()
+    // RouterView stub 内放一个 FsdButton（位于 ElConfigProvider 的 provide 作用域内）
+    const wrapper = mount(App, {
+      global: {
+        stubs: {
+          RouterView: defineComponent({
+            components: { FsdButton },
+            template: '<div class="probe"><FsdButton>x</FsdButton></div>',
+          }),
+        },
+      },
+    })
+    const button = () => wrapper.find('.probe button')
+
+    // 默认档：EP 无 size 类（与改动前视觉一致）
+    expect(button().classes()).not.toContain('el-button--small')
+    expect(button().classes()).not.toContain('el-button--large')
+
+    theme.setDensity('compact')
+    await nextTick()
+    expect(button().classes()).toContain('el-button--small')
+
+    theme.setDensity('comfortable')
+    await nextTick()
+    expect(button().classes()).toContain('el-button--large')
+
+    theme.setDensity('default')
+    await nextTick()
+    expect(button().classes()).not.toContain('el-button--small')
+    expect(button().classes()).not.toContain('el-button--large')
   })
 })

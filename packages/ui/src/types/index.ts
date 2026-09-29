@@ -28,6 +28,8 @@ export interface FsdTableProps<T = Record<string, unknown>> {
   highlightCurrentRow?: boolean
   pagination?: false | { page: number; pageSize: number; total: number }
   emptyText?: string
+  /** 不传时继承 ElConfigProvider.size（P12 紧凑度联动：表格与分页尺寸） */
+  size?: FsdSize
 }
 
 export interface FsdDropdownItem {

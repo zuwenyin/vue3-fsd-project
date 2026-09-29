@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElSwitch } from 'element-plus'
 import 'element-plus/es/components/switch/style/css'
+import type { FsdSize } from '../../types'
 
 defineOptions({ name: 'FsdSwitch' })
 
@@ -9,6 +10,8 @@ const props = defineProps<{
   activeText?: string
   inactiveText?: string
   disabled?: boolean
+  /** 不传时继承 ElConfigProvider.size（P12 紧凑度联动） */
+  size?: FsdSize
 }>()
 
 const emit = defineEmits<{
@@ -29,6 +32,7 @@ function onChange(value: string | number | boolean): void {
     :active-text="activeText"
     :inactive-text="inactiveText"
     :disabled="disabled"
+    :size="size"
     @change="onChange"
   />
 </template>
