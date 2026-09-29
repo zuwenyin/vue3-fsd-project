@@ -45,6 +45,7 @@ describe('ColorPickerPanel（自定义品牌色面板）', () => {
     storage.remove(THEME_KEY)
     setActivePinia(createPinia())
     HTML.style.removeProperty('--el-color-primary')
+    HTML.classList.remove('fsd-grayscale', 'fsd-color-weak')
   })
 
   it('预设色板数量与常量一致；点击色块写入品牌色并持久化', async () => {
@@ -82,6 +83,27 @@ describe('ColorPickerPanel（自定义品牌色面板）', () => {
 
     expect(theme.primary).toBe(DEFAULT_PRIMARY)
     expect(theme.mode).toBe('light')
+  })
+
+  it('P11：圆角 / 紧凑度 / 显示模式三组档位可切换并写入 store', async () => {
+    const theme = useThemeStore()
+    const wrapper = mountPanel()
+
+    const groups = wrapper.findAll('.color-panel__choices')
+    expect(groups).toHaveLength(3)
+
+    // 圆角：第 4 档（大）
+    await groups[0]?.findAll('button')[3]?.trigger('click')
+    expect(theme.radius).toBe('lg')
+
+    // 紧凑度：第 1 档（紧凑）
+    await groups[1]?.findAll('button')[0]?.trigger('click')
+    expect(theme.density).toBe('compact')
+
+    // 显示模式：第 2 档（灰阶）→ 挂 html class
+    await groups[2]?.findAll('button')[1]?.trigger('click')
+    expect(theme.colorMode).toBe('grayscale')
+    expect(HTML.classList.contains('fsd-grayscale')).toBe(true)
   })
 
   it('visible=false 时向 FsdDialog 传 false（不渲染由对话框自身负责）', () => {

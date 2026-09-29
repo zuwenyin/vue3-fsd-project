@@ -33,7 +33,8 @@ function onSelect(value: string): void {
 </script>
 
 <template>
-  <FsdDropdown :items="items" @select="onSelect">
+  <!-- title 用于提示与端到端定位（外观设置面板入口） -->
+  <FsdDropdown :items="items" :title="t('theme.appearance')" @select="onSelect">
     <FsdIcon :name="MODE_ICONS[theme.mode]" :size="16" />
   </FsdDropdown>
 </template>

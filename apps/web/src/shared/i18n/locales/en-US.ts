@@ -30,6 +30,7 @@ export default {
   },
   theme: {
     title: 'Theme Settings',
+    appearance: 'Appearance',
     presets: 'Preset colors',
     custom: 'Custom',
     customEntry: 'Custom brand color…',
@@ -37,6 +38,20 @@ export default {
     light: 'Light',
     dark: 'Dark',
     auto: 'Follow system',
+    /** P11 extension slots: radius / density / color mode */
+    radius: 'Radius',
+    radiusNone: 'Square',
+    radiusSm: 'Small',
+    radiusMd: 'Default',
+    radiusLg: 'Large',
+    density: 'Density',
+    densityCompact: 'Compact',
+    densityDefault: 'Default',
+    densityComfortable: 'Comfortable',
+    colorMode: 'Display',
+    colorModeNone: 'Normal',
+    colorModeGrayscale: 'Grayscale',
+    colorModeWeak: 'Color-weak aid',
   },
   layout: {
     label: 'Layout',

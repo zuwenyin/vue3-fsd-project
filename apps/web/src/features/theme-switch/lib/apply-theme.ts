@@ -1,6 +1,6 @@
 import { generatePrimaryShades, type ShadeKey } from '@repo/utils'
-import { DARK_MEDIA_QUERY } from '../model/constants'
-import type { ThemeMode } from '../model/types'
+import { DARK_MEDIA_QUERY, DENSITY_SCALE, RADIUS_SCALE, SPACE_TOKENS } from '../model/constants'
+import type { ColorMode, DensityLevel, RadiusLevel, ThemeMode } from '../model/types'
 
 const HTML = document.documentElement
 
@@ -40,6 +40,40 @@ export function applyPrimaryColor(hex: string): void {
   }
   root.setProperty('--fsd-color-primary-light-3', shades['light-3'])
   root.setProperty('--fsd-color-primary-dark-2', shades['dark-2'])
+}
+
+/**
+ * 圆角档位（P11，docs/04 §1 扩展位）：写自有组件令牌与 EP 圆角变量（inline style 覆盖 SCSS 基线）。
+ */
+export function applyRadius(level: RadiusLevel): void {
+  const scale = RADIUS_SCALE[level]
+  const root = HTML.style
+  root.setProperty('--fsd-radius-sm', `${scale.sm}px`)
+  root.setProperty('--fsd-radius-md', `${scale.md}px`)
+  root.setProperty('--fsd-radius-lg', `${scale.lg}px`)
+  root.setProperty('--el-border-radius-base', `${scale.elBase}px`)
+  root.setProperty('--el-border-radius-small', `${scale.elSmall}px`)
+}
+
+/**
+ * 紧凑度（P11）：缩放间距令牌 `--fsd-space-*`。
+ * EP 组件的尺寸档由 `ElConfigProvider :size` 联动（`App.vue`）。
+ */
+export function applyDensity(level: DensityLevel): void {
+  const root = HTML.style
+  DENSITY_SCALE[level].space.forEach((value, index) => {
+    const token = SPACE_TOKENS[index]
+    if (token) root.setProperty(token, `${value}px`)
+  })
+}
+
+/**
+ * 灰阶 / 色弱辅助（P11）：`html` 挂 class，由全局样式（`app/styles/index.scss`）定义 filter。
+ * ⚠️ 为**近似辅助**（非医学级矫正）；filter 作用于 `html`，teleport 到 body 的弹层同样生效。
+ */
+export function applyColorMode(mode: ColorMode): void {
+  HTML.classList.toggle('fsd-grayscale', mode === 'grayscale')
+  HTML.classList.toggle('fsd-color-weak', mode === 'weak')
 }
 
 /** 测试与调试用：清掉运行时写入的品牌色变量（回落到 SCSS 基线） */

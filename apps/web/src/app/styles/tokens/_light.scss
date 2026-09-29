@@ -31,7 +31,10 @@
   --fsd-space-md: 12px;
   --fsd-space-lg: 16px;
   --fsd-space-xl: 24px;
+
+  // 圆角只提供基线（md 档 = P11 默认）；运行时按档位由 applyRadius 写 inline style 覆盖
   --fsd-radius-sm: 4px;
   --fsd-radius-md: 8px;
+  --fsd-radius-lg: 12px;
   --fsd-shadow-md: 0 4px 12px rgb(31 35 41 / 10%);
 }

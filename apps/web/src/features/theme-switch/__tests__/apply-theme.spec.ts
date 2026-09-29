@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  applyColorMode,
   applyDarkMode,
+  applyDensity,
   applyPrimaryColor,
+  applyRadius,
   clearPrimaryColorVars,
   resolveIsDark,
 } from '../lib/apply-theme'
@@ -80,5 +83,53 @@ describe('apply-theme', () => {
     clearPrimaryColorVars()
     expect(HTML.style.getPropertyValue('--el-color-primary')).toBe('')
     expect(HTML.style.getPropertyValue('--fsd-color-primary')).toBe('')
+  })
+})
+
+describe('apply-theme · P11 扩展位（圆角 / 紧凑度 / 显示模式）', () => {
+  beforeEach(() => {
+    HTML.removeAttribute('style')
+    HTML.classList.remove('fsd-grayscale', 'fsd-color-weak')
+  })
+
+  it('applyRadius：none 直角（含 EP 圆角变量归零）', () => {
+    applyRadius('none')
+    expect(HTML.style.getPropertyValue('--fsd-radius-md')).toBe('0px')
+    expect(HTML.style.getPropertyValue('--el-border-radius-base')).toBe('0px')
+    expect(HTML.style.getPropertyValue('--el-border-radius-small')).toBe('0px')
+  })
+
+  it('applyRadius：md 档与 SCSS 基线一致（4/8/12，EP 4/2）', () => {
+    applyRadius('md')
+    expect(HTML.style.getPropertyValue('--fsd-radius-sm')).toBe('4px')
+    expect(HTML.style.getPropertyValue('--fsd-radius-md')).toBe('8px')
+    expect(HTML.style.getPropertyValue('--fsd-radius-lg')).toBe('12px')
+    expect(HTML.style.getPropertyValue('--el-border-radius-base')).toBe('4px')
+    expect(HTML.style.getPropertyValue('--el-border-radius-small')).toBe('2px')
+  })
+
+  it('applyDensity：compact 缩放五项间距；default 回到基线', () => {
+    applyDensity('compact')
+    expect(HTML.style.getPropertyValue('--fsd-space-xs')).toBe('2px')
+    expect(HTML.style.getPropertyValue('--fsd-space-sm')).toBe('6px')
+    expect(HTML.style.getPropertyValue('--fsd-space-xl')).toBe('16px')
+
+    applyDensity('default')
+    expect(HTML.style.getPropertyValue('--fsd-space-sm')).toBe('8px')
+    expect(HTML.style.getPropertyValue('--fsd-space-xl')).toBe('24px')
+  })
+
+  it('applyColorMode：灰阶与色弱互斥，none 全清', () => {
+    applyColorMode('grayscale')
+    expect(HTML.classList.contains('fsd-grayscale')).toBe(true)
+    expect(HTML.classList.contains('fsd-color-weak')).toBe(false)
+
+    applyColorMode('weak')
+    expect(HTML.classList.contains('fsd-grayscale')).toBe(false)
+    expect(HTML.classList.contains('fsd-color-weak')).toBe(true)
+
+    applyColorMode('none')
+    expect(HTML.classList.contains('fsd-grayscale')).toBe(false)
+    expect(HTML.classList.contains('fsd-color-weak')).toBe(false)
   })
 })

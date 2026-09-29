@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { storage } from '@repo/utils'
 import { THEME_KEY } from '@/shared/config/storage-keys'
-import { DEFAULT_PRIMARY } from '../model/constants'
+import {
+  DEFAULT_COLOR_MODE,
+  DEFAULT_DENSITY,
+  DEFAULT_PRIMARY,
+  DEFAULT_RADIUS,
+} from '../model/constants'
 import { initTheme, readThemePreference } from '../lib/init-theme'
 
 const HTML = document.documentElement
@@ -9,7 +14,7 @@ const HTML = document.documentElement
 describe('init-theme（首屏防闪烁）', () => {
   beforeEach(() => {
     storage.remove(THEME_KEY)
-    HTML.classList.remove('dark')
+    HTML.classList.remove('dark', 'fsd-grayscale', 'fsd-color-weak')
     HTML.removeAttribute('style')
     vi.spyOn(window, 'matchMedia').mockImplementation(
       (query: string) =>
@@ -41,11 +46,32 @@ describe('init-theme（首屏防闪烁）', () => {
     expect(HTML.style.getPropertyValue('--el-color-primary')).toBe('#722ed1')
   })
 
-  it('readThemePreference：损坏值回落（非对象 / 枚举非法 / 空主色）', () => {
+  it('readThemePreference：损坏值逐字段回落（非对象 / 枚举非法 / 空主色 / P11 档位非法）', () => {
     storage.set(THEME_KEY, 'not-an-object')
-    expect(readThemePreference()).toEqual({ mode: 'light', primary: DEFAULT_PRIMARY })
+    expect(readThemePreference()).toMatchObject({ mode: 'light', primary: DEFAULT_PRIMARY })
 
-    storage.set(THEME_KEY, { mode: 'sepia', primary: '' })
-    expect(readThemePreference()).toEqual({ mode: 'light', primary: DEFAULT_PRIMARY })
+    storage.set(THEME_KEY, {
+      mode: 'sepia',
+      primary: '',
+      radius: 'xxl',
+      density: 1,
+      colorMode: 'invert',
+    })
+    expect(readThemePreference()).toMatchObject({
+      mode: 'light',
+      primary: DEFAULT_PRIMARY,
+      radius: DEFAULT_RADIUS,
+      density: DEFAULT_DENSITY,
+      colorMode: DEFAULT_COLOR_MODE,
+    })
+  })
+
+  it('P11：持久化的圆角 / 紧凑度 / 显示模式先于 mount 应用（防闪烁）', () => {
+    storage.set(THEME_KEY, { radius: 'none', density: 'compact', colorMode: 'grayscale' })
+    initTheme()
+
+    expect(HTML.style.getPropertyValue('--fsd-radius-md')).toBe('0px')
+    expect(HTML.style.getPropertyValue('--fsd-space-sm')).toBe('6px')
+    expect(HTML.classList.contains('fsd-grayscale')).toBe(true)
   })
 })

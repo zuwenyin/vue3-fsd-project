@@ -30,6 +30,7 @@ export default {
   },
   theme: {
     title: '主题设置',
+    appearance: '外观设置',
     presets: '预设色板',
     custom: '自定义',
     customEntry: '自定义品牌色…',
@@ -37,6 +38,20 @@ export default {
     light: '浅色',
     dark: '深色',
     auto: '跟随系统',
+    /** P11 扩展位：圆角 / 紧凑度 / 显示模式 */
+    radius: '圆角',
+    radiusNone: '直角',
+    radiusSm: '小',
+    radiusMd: '默认',
+    radiusLg: '大',
+    density: '紧凑度',
+    densityCompact: '紧凑',
+    densityDefault: '默认',
+    densityComfortable: '宽松',
+    colorMode: '显示模式',
+    colorModeNone: '正常',
+    colorModeGrayscale: '灰阶',
+    colorModeWeak: '色弱辅助',
   },
   layout: {
     label: '布局',

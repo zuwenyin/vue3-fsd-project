@@ -37,3 +37,14 @@ body {
   opacity: 0;
   transform: translateX(-12px);
 }
+
+// ---- 灰阶 / 色弱辅助（P11，docs/04 §1 扩展位）----
+// ★ 为**近似辅助**（非医学级矫正）；由 theme-switch 的 applyColorMode 切换 html class。
+// filter 作用于 html → teleport 到 body 的弹层（dialog/message）同样生效。
+html.fsd-grayscale {
+  filter: grayscale(1);
+}
+
+html.fsd-color-weak {
+  filter: saturate(0.8) hue-rotate(-10deg);
+}
