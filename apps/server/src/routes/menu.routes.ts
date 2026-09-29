@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { z } from 'zod'
+import { requirePermission } from '../middleware/auth.js'
 import { validate } from '../middleware/validate.js'
 import * as menuService from '../services/menu.service.js'
 import { ok } from '../shared/result.js'
@@ -37,30 +38,35 @@ const moveSchema = z.object({
 
 export const menuRouter: Router = Router()
 
-menuRouter.get('/', (_req, res) => {
+/** 读权限点（P10，决策 D5 由「不启用」改为启用）；admin 的 `*` 通配自动通过 */
+const canView = requirePermission('system:menu:view')
+/** 写权限点：新增 / 修改 / 删除 / 移动 */
+const canEdit = requirePermission('system:menu:edit')
+
+menuRouter.get('/', canView, (_req, res) => {
   res.json(ok(menuService.listFlat()))
 })
 
-menuRouter.get('/tree', (_req, res) => {
+menuRouter.get('/tree', canView, (_req, res) => {
   res.json(ok(menuService.listTree()))
 })
 
-menuRouter.post('/', validate(menuSchema), (req, res) => {
+menuRouter.post('/', canEdit, validate(menuSchema), (req, res) => {
   res.json(ok(menuService.create(req.body as MenuInsertInput)))
 })
 
-menuRouter.put('/:id', validate(menuSchema.partial()), (req, res) => {
+menuRouter.put('/:id', canEdit, validate(menuSchema.partial()), (req, res) => {
   const id = Number(req.params['id'])
   res.json(ok(menuService.update(id, req.body as Record<string, never>)))
 })
 
-menuRouter.delete('/:id', (req, res) => {
+menuRouter.delete('/:id', canEdit, (req, res) => {
   const id = Number(req.params['id'])
   const cascade = req.query['cascade'] === 'true'
   res.json(ok(menuService.remove(id, cascade)))
 })
 
-menuRouter.post('/:id/move', validate(moveSchema), (req, res) => {
+menuRouter.post('/:id/move', canEdit, validate(moveSchema), (req, res) => {
   const id = Number(req.params['id'])
   const body = req.body as { targetParentId: number | null; beforeId?: number | null }
   res.json(

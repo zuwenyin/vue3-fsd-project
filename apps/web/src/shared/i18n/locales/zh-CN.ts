@@ -17,6 +17,11 @@ export default {
     expandAll: '展开全部',
     collapseAll: '折叠全部',
   },
+  error: {
+    /** 服务端 403（P10：权限点校验启用） */
+    forbidden: '无权限访问',
+    requestFailed: '请求失败',
+  },
   header: {
     sidebar: '折叠 / 展开侧边栏',
     theme: '主题',

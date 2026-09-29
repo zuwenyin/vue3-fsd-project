@@ -1,8 +1,8 @@
 import axios, { type AxiosError } from 'axios'
-import { ElMessage } from 'element-plus'
 import { storage } from '@repo/utils'
 import { env } from '@/shared/config/env'
 import { TOKEN_KEY } from '@/shared/config/storage-keys'
+import { handleApiError } from './error-handler'
 import type { ApiResponse } from './types'
 
 export const request = axios.create({
@@ -19,16 +19,11 @@ request.interceptors.request.use((config) => {
 request.interceptors.response.use(
   (res) => res,
   (error: AxiosError<ApiResponse<null>>) => {
-    const code = error.response?.data?.code ?? error.response?.status
-    const message = error.response?.data?.message ?? error.message
-    if (code === 401) {
-      // P3 接入 features/auth 的 logout() 后改用它编排
-      storage.remove(TOKEN_KEY)
-      location.href = '/login'
-      return Promise.reject(error)
-    }
-    if (code === 403) ElMessage.error('无权限访问')
-    else ElMessage.error(message || '请求失败')
+    // 401 清 token 跳登录 / 403 仅提示（P10）/ 其他展示服务端 message —— 见 error-handler.ts
+    handleApiError(
+      error.response?.data?.code ?? error.response?.status,
+      error.response?.data?.message ?? error.message,
+    )
     return Promise.reject(error)
   },
 )

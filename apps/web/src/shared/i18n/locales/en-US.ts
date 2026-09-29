@@ -17,6 +17,11 @@ export default {
     expandAll: 'Expand All',
     collapseAll: 'Collapse All',
   },
+  error: {
+    /** Server 403 (P10: permission-point check enabled) */
+    forbidden: 'Permission denied',
+    requestFailed: 'Request failed',
+  },
   header: {
     sidebar: 'Collapse / Expand sidebar',
     theme: 'Theme',
