@@ -31,6 +31,9 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      # 子包 dist 不入库：干净环境必须先构建，否则 web 的 type-check / test 解析不到 @repo/ui、@repo/utils
+      - name: 构建子包（utils / ui）
+        run: pnpm -r --filter "@repo/utils" --filter "@repo/ui" run build
       - run: pnpm type-check
       - run: pnpm test:cov
       - run: pnpm build
