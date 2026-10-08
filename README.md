@@ -106,6 +106,7 @@ pnpm test            # Vitest run
 pnpm test:cov        # Vitest + 覆盖率（阈值：utils ≥ 90%，web ≥ 60%，ui ≥ 40%，server 不设门槛）
 pnpm verify:dist     # 构建产物校验（存在性 + EP 样式/设计令牌关键内容 + 体积报告）
 pnpm smoke:preview   # 静态产物冒烟（vite preview + /login、assets、SPA 回退断言）
+pnpm smoke:regression # 跨阶段交互回归（11 项：登录/三级菜单/面包屑/页签/主题/布局/水印/i18n/菜单配置页；需先起 dev:server 与 dev:web）
 pnpm --filter @repo/web preview   # 手动预览静态产物（需先 pnpm build）
 
 # 版本与发布（Changesets）
@@ -130,6 +131,7 @@ pnpm --filter @repo/web exec msw init public --save
 pnpm build          # 拓扑构建：utils → ui → web（server 为源码直跑，无需构建）
 pnpm verify:dist    # ① 产物校验：文件存在性 + 关键内容（EP 按需样式 / 设计令牌）+ 体积报告
 pnpm smoke:preview  # ② 静态冒烟：vite preview 起服务，断言 /login、/assets/*、SPA 回退
+pnpm smoke:regression # ③ 交互回归：headless Chrome 跑 11 项运行时断言（需 dev:server + dev:web，不进 CI）
 ```
 
 **前端（`apps/web/dist/`）**：纯静态产物，可托管到任意静态服务器/CDN。**必须开启 SPA 回退**
@@ -155,6 +157,11 @@ server {
   `PORT` 指定端口（默认 `3001`，须与前端反代一致）。
 - **CI 已内置**：`web` job 在 `pnpm build` 后执行 `pnpm verify:dist` 与 `pnpm smoke:preview`
   （仅 Node 主版本执行，矩阵中 22.x 只跑 lint/type-check/test/build），见 `.github/workflows/ci.yml`。
+- **跨阶段交互回归（本地/阶段验收用，不进 CI）**：`pnpm smoke:regression` → `scripts/regression-smoke.mjs`，
+  用 headless Chrome + CDP（零第三方依赖）跑 11 项运行时集成断言：登录 → 三级菜单直达 → 面包屑 → 页签 →
+  切深色主题 → 设置抽屉切布局（抽屉保持打开）→ 水印 → 刷新后偏好保持 → 切英文 → 菜单配置页。
+  需先启动 `pnpm dev:server` 与 `pnpm dev:web`；浏览器按 `CHROME_PATH` → 常见安装路径解析，
+  找不到时跳过并退出 0。
 
 ## 6. 文档索引
 

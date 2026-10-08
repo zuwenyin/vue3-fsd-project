@@ -14,6 +14,7 @@
     "build": "pnpm -r --filter \"@repo/*\" run build",
     "verify:dist": "node scripts/verify-dist.mjs",
     "smoke:preview": "node scripts/preview-smoke.mjs",
+    "smoke:regression": "node scripts/regression-smoke.mjs",
     "lint": "pnpm lint:js && pnpm lint:style",
     "lint:js": "eslint . --max-warnings 0",
     "lint:style": "stylelint \"**/*.{css,scss,vue}\" --cache --max-warnings 0",
