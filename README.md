@@ -103,8 +103,10 @@ pnpm lint            # ESLint（flat config）
 pnpm format          # Prettier
 pnpm type-check      # vue-tsc --noEmit
 pnpm test            # Vitest run
-pnpm test:cov        # Vitest + 覆盖率（阈值：utils ≥ 90%，web/ui ≥ 40%，server 不设门槛）
-pnpm --filter @repo/web preview   # 静态产物冒烟（需先 pnpm build）
+pnpm test:cov        # Vitest + 覆盖率（阈值：utils ≥ 90%，web ≥ 60%，ui ≥ 40%，server 不设门槛）
+pnpm verify:dist     # 构建产物校验（存在性 + EP 样式/设计令牌关键内容 + 体积报告）
+pnpm smoke:preview   # 静态产物冒烟（vite preview + /login、assets、SPA 回退断言）
+pnpm --filter @repo/web preview   # 手动预览静态产物（需先 pnpm build）
 
 # 版本与发布（Changesets）
 pnpm changeset
@@ -121,6 +123,38 @@ pnpm --filter @repo/web exec msw init public --save
 - **离线兜底（可选）**：服务端不便启动时，`apps/web/.env.local` 设 `VITE_USE_MOCK=true` 后 `pnpm --filter @repo/web dev`，由 `apps/web/mocks` 的 MSW handlers 提供同契约数据（3 级路由树）。首次使用需执行上面的 `msw init` 生成 `public/mockServiceWorker.js`。
 - **测试中使用**：`apps/web/mocks/server.ts` 已在 `vitest.setup.ts` 挂载（`beforeAll/afterEach/afterAll`），组件与路由测试无需真实服务；handlers 的契约由 `mocks/__tests__/handlers.spec.ts` 锁定。
 - **偏好持久化键**（均走 `@repo/utils` 的 `storage`，键常量集中在 `apps/web/src/shared/config/storage-keys.ts`）：`fsd:token` / `fsd:theme` / `fsd:layout` / `fsd:tabs` / `fsd:lang`。
+
+### 构建与部署（P13）
+
+```bash
+pnpm build          # 拓扑构建：utils → ui → web（server 为源码直跑，无需构建）
+pnpm verify:dist    # ① 产物校验：文件存在性 + 关键内容（EP 按需样式 / 设计令牌）+ 体积报告
+pnpm smoke:preview  # ② 静态冒烟：vite preview 起服务，断言 /login、/assets/*、SPA 回退
+```
+
+**前端（`apps/web/dist/`）**：纯静态产物，可托管到任意静态服务器/CDN。**必须开启 SPA 回退**
+（未命中的路径返回 `index.html`，否则前端路由刷新会 404）：
+
+```nginx
+# nginx 示例
+server {
+  listen 80;
+  root /var/www/fsd-web;              # apps/web/dist 的内容
+  location / {
+    try_files $uri $uri/ /index.html; # SPA 回退
+  }
+  location /api/ {                    # 后端同域反代（推荐：免 CORS）
+    proxy_pass http://127.0.0.1:3001;
+  }
+}
+```
+
+- **接口地址**：`VITE_API_BASE_URL`（构建期注入，默认 `/api`）。生产推荐「同域反代 `/api` → 后端」，
+  产物无需改动也无跨域问题；后端独立域名时在构建时设为完整地址（需后端开启 CORS）。
+- **后端（`apps/server`）**：Node 进程 + SQLite 文件；`DB_PATH` 指定数据库文件（需持久化卷），
+  `PORT` 指定端口（默认 `3001`，须与前端反代一致）。
+- **CI 已内置**：`web` job 在 `pnpm build` 后执行 `pnpm verify:dist` 与 `pnpm smoke:preview`
+  （仅 Node 主版本执行，矩阵中 22.x 只跑 lint/type-check/test/build），见 `.github/workflows/ci.yml`。
 
 ## 6. 文档索引
 

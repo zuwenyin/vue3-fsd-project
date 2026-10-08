@@ -12,6 +12,8 @@
     "dev:server": "pnpm --filter @repo/server run dev",
     "db:reset": "pnpm --filter @repo/server run db:reset",
     "build": "pnpm -r --filter \"@repo/*\" run build",
+    "verify:dist": "node scripts/verify-dist.mjs",
+    "smoke:preview": "node scripts/preview-smoke.mjs",
     "lint": "pnpm lint:js && pnpm lint:style",
     "lint:js": "eslint . --max-warnings 0",
     "lint:style": "stylelint \"**/*.{css,scss,vue}\" --cache --max-warnings 0",

@@ -6,9 +6,20 @@ on:
   pull_request:
     branches: [main]
 
+# 同一分支/PR 的新推送取消进行中的旧运行（缩短反馈、节省额度）
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  web: # 前端 + 子包
+  web: # 前端 + 子包（Node 矩阵覆盖 engines 下限 22 与主版本 24）
+    name: web (node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.x', '24.x']
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -16,16 +27,25 @@ jobs:
           version: 11.9.0
       - uses: actions/setup-node@v5
         with:
-          node-version: 24.19.0
+          node-version: ${{ matrix.node }}
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm type-check
       - run: pnpm test:cov
       - run: pnpm build
+      # 产物校验与静态产物冒烟只在主版本执行（避免重复；见 docs/06 §11）
+      - name: 校验构建产物
+        if: matrix.node == '24.x'
+        run: pnpm verify:dist
+      - name: 预览冒烟（静态可部署性）
+        if: matrix.node == '24.x'
+        run: pnpm smoke:preview
 
   server: # apps/server（决策 D6，不设覆盖率门槛）
+    name: server
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       DB_PATH: ':memory:'
     steps:
@@ -35,7 +55,7 @@ jobs:
           version: 11.9.0
       - uses: actions/setup-node@v5
         with:
-          node-version: 24.19.0
+          node-version: '24.x'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @repo/server run type-check
